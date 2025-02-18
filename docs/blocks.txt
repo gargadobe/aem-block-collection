@@ -1,1 +1,4286 @@
-sample block content
+================================================
+File: blocks/accordion/accordion.css
+================================================
+.accordion details {
+  border: 1px solid #dadada;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.accordion details + details {
+  margin-top: 24px;
+}
+
+.accordion details p {
+  margin-bottom: 0.8em;
+}
+
+.accordion details summary {
+  position: relative;
+  padding: 0 16px;
+  padding-right: 46px;
+  cursor: pointer;
+  list-style: none;
+  overflow: auto;
+  transition: background-color 0.2s;
+}
+
+.accordion details[open] summary {
+  background-color: var(--light-color);
+}
+
+.accordion details summary:focus,
+.accordion details summary:hover {
+  background-color: var(--light-color);
+}
+
+.accordion details summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion details summary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%) rotate(135deg);
+  width: 6px;
+  height: 6px;
+  border: 2px solid;
+  border-width: 2px 2px 0 0;
+  transition: transform 0.2s;
+}
+
+.accordion details[open] summary::after {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.accordion details .accordion-item-body {
+  padding: 0 16px;
+}
+
+.accordion details[open] .accordion-item-body {
+  border-top: 1px solid #dadada;
+  background-color: var(--background-color);
+}
+
+
+================================================
+File: blocks/accordion/accordion.js
+================================================
+/*
+ * Accordion Block
+ * Recreate an accordion
+ * https://www.hlx.live/developer/block-collection/accordion
+ */
+
+export default function decorate(block) {
+  [...block.children].forEach((row) => {
+    // decorate accordion item label
+    const label = row.children[0];
+    const summary = document.createElement('summary');
+    summary.className = 'accordion-item-label';
+    summary.append(...label.childNodes);
+    // decorate accordion item body
+    const body = row.children[1];
+    body.className = 'accordion-item-body';
+    // decorate accordion item
+    const details = document.createElement('details');
+    details.className = 'accordion-item';
+    details.append(summary, body);
+    row.replaceWith(details);
+  });
+}
+
+
+================================================
+File: blocks/cards/cards.css
+================================================
+.cards > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
+  grid-gap: 24px;
+}
+
+.cards > ul > li {
+  border: 1px solid #dadada;
+  background-color: var(--background-color);
+}
+
+.cards .cards-card-body {
+  margin: 16px;
+}
+
+.cards .cards-card-image {
+  line-height: 0;
+}
+
+.cards > ul > li img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+
+================================================
+File: blocks/cards/cards.js
+================================================
+import { createOptimizedPicture } from '../../scripts/aem.js';
+
+export default function decorate(block) {
+  /* change to ul, li */
+  const ul = document.createElement('ul');
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    while (row.firstElementChild) li.append(row.firstElementChild);
+    [...li.children].forEach((div) => {
+      if (div.children.length === 1 && div.querySelector('picture')) div.className = 'cards-card-image';
+      else div.className = 'cards-card-body';
+    });
+    ul.append(li);
+  });
+  ul.querySelectorAll('picture > img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
+  block.textContent = '';
+  block.append(ul);
+}
+
+
+================================================
+File: blocks/carousel/carousel.css
+================================================
+.carousel .carousel-slides-container {
+  position: relative;
+}
+
+.carousel .carousel-slides,
+.carousel .carousel-slide-indicators {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.carousel .carousel-slides {
+  display: flex;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  overflow: scroll clip;
+}
+
+.carousel .carousel-slides::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel .carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-height: min(50vw, calc(100dvh - var(--header-height)));
+}
+
+.carousel .carousel-slide:has(.carousel-slide-content[data-align='center']) {
+  align-items: center;
+}
+
+.carousel .carousel-slide:has(.carousel-slide-content[data-align='right']) {
+  align-items: flex-end;
+}
+
+.carousel .carousel-slide .carousel-slide-image picture {
+  position: absolute;
+  inset: 0;
+}
+
+.carousel .carousel-slide .carousel-slide-image picture > img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.carousel .carousel-slide .carousel-slide-content {
+  z-index: 1;
+  margin: 68px;
+  padding: 16px;
+  color: white;
+  background-color: rgba(19 19 19 / 75%);
+  position: relative;
+  width: var(--slide-content-width, auto);
+}
+
+.carousel .carousel-slide-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 12px;
+  padding: 12px;
+  background-color: var(--light-color);
+  line-height: 0;
+}
+
+.carousel .carousel-slide-indicator button {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #dadada;
+  transition: background-color 0.2s;
+}
+
+.carousel .carousel-slide-indicator button:disabled,
+.carousel .carousel-slide-indicator button:hover,
+.carousel .carousel-slide-indicator button:focus-visible {
+  background-color: var(--text-color);
+}
+
+.carousel .carousel-navigation-buttons {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.carousel .carousel-navigation-buttons button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: 50%;
+  padding: 0;
+  background-color: rgba(19 19 19 / 25%);
+  transition: background-color 0.2s;
+}
+
+.carousel .carousel-navigation-buttons button:hover,
+.carousel .carousel-navigation-buttons button:focus-visible {
+  background-color: rgba(19 19 19 / 75%);
+}
+
+.carousel .carousel-navigation-buttons button::after {
+  display: block;
+  content: '';
+  border: 2px solid;
+  border-bottom: 0;
+  border-left: 0;
+  height: 12px;
+  width: 12px;
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 2px);
+  transform: translate(-50%, -50%) rotate(-135deg);
+}
+
+.carousel .carousel-navigation-buttons button.slide-next::after {
+  transform: translate(-50%, -50%) rotate(45deg);
+  left: calc(50% - 2px);
+}
+
+@media (width >= 600px) {
+  .carousel .carousel-navigation-buttons {
+    left: 24px;
+    right: 24px;
+  }
+
+  .carousel .carousel-slide .carousel-slide-content {
+    --slide-content-width: calc((100% - 184px) / 2);
+
+    margin: 92px;
+  }
+
+  .carousel .carousel-slide .carousel-slide-content[data-align='justify'] {
+    --slide-content-width: auto;
+  }
+}
+
+
+================================================
+File: blocks/carousel/carousel.js
+================================================
+import { fetchPlaceholders } from '../../scripts/aem.js';
+
+function updateActiveSlide(slide) {
+  const block = slide.closest('.carousel');
+  const slideIndex = parseInt(slide.dataset.slideIndex, 10);
+  block.dataset.activeSlide = slideIndex;
+
+  const slides = block.querySelectorAll('.carousel-slide');
+
+  slides.forEach((aSlide, idx) => {
+    aSlide.setAttribute('aria-hidden', idx !== slideIndex);
+    aSlide.querySelectorAll('a').forEach((link) => {
+      if (idx !== slideIndex) {
+        link.setAttribute('tabindex', '-1');
+      } else {
+        link.removeAttribute('tabindex');
+      }
+    });
+  });
+
+  const indicators = block.querySelectorAll('.carousel-slide-indicator');
+  indicators.forEach((indicator, idx) => {
+    if (idx !== slideIndex) {
+      indicator.querySelector('button').removeAttribute('disabled');
+    } else {
+      indicator.querySelector('button').setAttribute('disabled', 'true');
+    }
+  });
+}
+
+function showSlide(block, slideIndex = 0) {
+  const slides = block.querySelectorAll('.carousel-slide');
+  let realSlideIndex = slideIndex < 0 ? slides.length - 1 : slideIndex;
+  if (slideIndex >= slides.length) realSlideIndex = 0;
+  const activeSlide = slides[realSlideIndex];
+
+  activeSlide.querySelectorAll('a').forEach((link) => link.removeAttribute('tabindex'));
+  block.querySelector('.carousel-slides').scrollTo({
+    top: 0,
+    left: activeSlide.offsetLeft,
+    behavior: 'smooth',
+  });
+}
+
+function bindEvents(block) {
+  const slideIndicators = block.querySelector('.carousel-slide-indicators');
+  if (!slideIndicators) return;
+
+  slideIndicators.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const slideIndicator = e.currentTarget.parentElement;
+      showSlide(block, parseInt(slideIndicator.dataset.targetSlide, 10));
+    });
+  });
+
+  block.querySelector('.slide-prev').addEventListener('click', () => {
+    showSlide(block, parseInt(block.dataset.activeSlide, 10) - 1);
+  });
+  block.querySelector('.slide-next').addEventListener('click', () => {
+    showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
+  });
+
+  const slideObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) updateActiveSlide(entry.target);
+    });
+  }, { threshold: 0.5 });
+  block.querySelectorAll('.carousel-slide').forEach((slide) => {
+    slideObserver.observe(slide);
+  });
+}
+
+function createSlide(row, slideIndex, carouselId) {
+  const slide = document.createElement('li');
+  slide.dataset.slideIndex = slideIndex;
+  slide.setAttribute('id', `carousel-${carouselId}-slide-${slideIndex}`);
+  slide.classList.add('carousel-slide');
+
+  row.querySelectorAll(':scope > div').forEach((column, colIdx) => {
+    column.classList.add(`carousel-slide-${colIdx === 0 ? 'image' : 'content'}`);
+    slide.append(column);
+  });
+
+  const labeledBy = slide.querySelector('h1, h2, h3, h4, h5, h6');
+  if (labeledBy) {
+    slide.setAttribute('aria-labelledby', labeledBy.getAttribute('id'));
+  }
+
+  return slide;
+}
+
+let carouselId = 0;
+export default async function decorate(block) {
+  carouselId += 1;
+  block.setAttribute('id', `carousel-${carouselId}`);
+  const rows = block.querySelectorAll(':scope > div');
+  const isSingleSlide = rows.length < 2;
+
+  const placeholders = await fetchPlaceholders();
+
+  block.setAttribute('role', 'region');
+  block.setAttribute('aria-roledescription', placeholders.carousel || 'Carousel');
+
+  const container = document.createElement('div');
+  container.classList.add('carousel-slides-container');
+
+  const slidesWrapper = document.createElement('ul');
+  slidesWrapper.classList.add('carousel-slides');
+  block.prepend(slidesWrapper);
+
+  let slideIndicators;
+  if (!isSingleSlide) {
+    const slideIndicatorsNav = document.createElement('nav');
+    slideIndicatorsNav.setAttribute('aria-label', placeholders.carouselSlideControls || 'Carousel Slide Controls');
+    slideIndicators = document.createElement('ol');
+    slideIndicators.classList.add('carousel-slide-indicators');
+    slideIndicatorsNav.append(slideIndicators);
+    block.append(slideIndicatorsNav);
+
+    const slideNavButtons = document.createElement('div');
+    slideNavButtons.classList.add('carousel-navigation-buttons');
+    slideNavButtons.innerHTML = `
+      <button type="button" class= "slide-prev" aria-label="${placeholders.previousSlide || 'Previous Slide'}"></button>
+      <button type="button" class="slide-next" aria-label="${placeholders.nextSlide || 'Next Slide'}"></button>
+    `;
+
+    container.append(slideNavButtons);
+  }
+
+  rows.forEach((row, idx) => {
+    const slide = createSlide(row, idx, carouselId);
+    slidesWrapper.append(slide);
+
+    if (slideIndicators) {
+      const indicator = document.createElement('li');
+      indicator.classList.add('carousel-slide-indicator');
+      indicator.dataset.targetSlide = idx;
+      indicator.innerHTML = `<button type="button" aria-label="${placeholders.showSlide || 'Show Slide'} ${idx + 1} ${placeholders.of || 'of'} ${rows.length}"></button>`;
+      slideIndicators.append(indicator);
+    }
+    row.remove();
+  });
+
+  container.append(slidesWrapper);
+  block.prepend(container);
+
+  if (!isSingleSlide) {
+    bindEvents(block);
+  }
+}
+
+
+================================================
+File: blocks/columns/columns.css
+================================================
+.columns > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns img {
+  width: 100%;
+}
+
+.columns > div > div {
+  order: 1;
+}
+
+.columns > div > .columns-img-col {
+  order: 0;
+}
+
+.columns > div > .columns-img-col img {
+  display: block;
+}
+
+@media (width >= 900px) {
+  .columns > div {
+    align-items: center;
+    flex-direction: unset;
+    gap: 24px;
+  }
+
+  .columns > div > div {
+    flex: 1;
+    order: unset;
+  }
+}
+
+
+================================================
+File: blocks/columns/columns.js
+================================================
+export default function decorate(block) {
+  const cols = [...block.firstElementChild.children];
+  block.classList.add(`columns-${cols.length}-cols`);
+
+  // setup image columns
+  [...block.children].forEach((row) => {
+    [...row.children].forEach((col) => {
+      const pic = col.querySelector('picture');
+      if (pic) {
+        const picWrapper = pic.closest('div');
+        if (picWrapper && picWrapper.children.length === 1) {
+          // picture is only content in column
+          picWrapper.classList.add('columns-img-col');
+        }
+      }
+    });
+  });
+}
+
+
+================================================
+File: blocks/embed/embed.css
+================================================
+.embed {
+  width: unset;
+  text-align: center;
+  max-width: 800px;
+  margin: 32px auto;
+}
+
+.embed > div {
+  display: flex;
+  justify-content: center;
+}
+
+.embed.embed-twitter .twitter-tweet-rendered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.embed .embed-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.embed .embed-placeholder > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+}
+
+.embed .embed-placeholder picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.embed .embed-placeholder-play button {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(3);
+  width: 22px;
+  height: 22px;
+  border: 2px solid;
+  border-radius: 20px;
+  padding: 0;
+}
+
+.embed .embed-placeholder-play button::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 0;
+  height: 10px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid;
+  top: 4px;
+  left: 7px;
+}
+
+
+================================================
+File: blocks/embed/embed.js
+================================================
+/*
+ * Embed Block
+ * Show videos and social posts directly on your page
+ * https://www.hlx.live/developer/block-collection/embed
+ */
+
+const loadScript = (url, callback, type) => {
+  const head = document.querySelector('head');
+  const script = document.createElement('script');
+  script.src = url;
+  if (type) {
+    script.setAttribute('type', type);
+  }
+  script.onload = callback;
+  head.append(script);
+  return script;
+};
+
+const getDefaultEmbed = (url) => `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;">
+    <iframe src="${url.href}" style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" allowfullscreen=""
+      scrolling="no" allow="encrypted-media" title="Content from ${url.hostname}" loading="lazy">
+    </iframe>
+  </div>`;
+
+const embedYoutube = (url, autoplay) => {
+  const usp = new URLSearchParams(url.search);
+  const suffix = autoplay ? '&muted=1&autoplay=1' : '';
+  let vid = usp.get('v') ? encodeURIComponent(usp.get('v')) : '';
+  const embed = url.pathname;
+  if (url.origin.includes('youtu.be')) {
+    [, vid] = url.pathname.split('/');
+  }
+  const embedHTML = `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;">
+      <iframe src="https://www.youtube.com${vid ? `/embed/${vid}?rel=0&v=${vid}${suffix}` : embed}" style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" 
+      allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; picture-in-picture" allowfullscreen="" scrolling="no" title="Content from Youtube" loading="lazy"></iframe>
+    </div>`;
+  return embedHTML;
+};
+
+const embedVimeo = (url, autoplay) => {
+  const [, video] = url.pathname.split('/');
+  const suffix = autoplay ? '?muted=1&autoplay=1' : '';
+  const embedHTML = `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;">
+      <iframe src="https://player.vimeo.com/video/${video}${suffix}" 
+      style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" 
+      frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen  
+      title="Content from Vimeo" loading="lazy"></iframe>
+    </div>`;
+  return embedHTML;
+};
+
+const embedTwitter = (url) => {
+  const embedHTML = `<blockquote class="twitter-tweet"><a href="${url.href}"></a></blockquote>`;
+  loadScript('https://platform.twitter.com/widgets.js');
+  return embedHTML;
+};
+
+const loadEmbed = (block, link, autoplay) => {
+  if (block.classList.contains('embed-is-loaded')) {
+    return;
+  }
+
+  const EMBEDS_CONFIG = [
+    {
+      match: ['youtube', 'youtu.be'],
+      embed: embedYoutube,
+    },
+    {
+      match: ['vimeo'],
+      embed: embedVimeo,
+    },
+    {
+      match: ['twitter'],
+      embed: embedTwitter,
+    },
+  ];
+
+  const config = EMBEDS_CONFIG.find((e) => e.match.some((match) => link.includes(match)));
+  const url = new URL(link);
+  if (config) {
+    block.innerHTML = config.embed(url, autoplay);
+    block.classList = `block embed embed-${config.match[0]}`;
+  } else {
+    block.innerHTML = getDefaultEmbed(url);
+    block.classList = 'block embed';
+  }
+  block.classList.add('embed-is-loaded');
+};
+
+export default function decorate(block) {
+  const placeholder = block.querySelector('picture');
+  const link = block.querySelector('a').href;
+  block.textContent = '';
+
+  if (placeholder) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'embed-placeholder';
+    wrapper.innerHTML = '<div class="embed-placeholder-play"><button type="button" title="Play"></button></div>';
+    wrapper.prepend(placeholder);
+    wrapper.addEventListener('click', () => {
+      loadEmbed(block, link, true);
+    });
+    block.append(wrapper);
+  } else {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        observer.disconnect();
+        loadEmbed(block, link);
+      }
+    });
+    observer.observe(block);
+  }
+}
+
+
+================================================
+File: blocks/footer/footer.css
+================================================
+footer {
+  background-color: var(--light-color);
+  font-size: var(--body-font-size-xs);
+}
+
+footer .footer > div {
+  margin: auto;
+  max-width: 1200px;
+  padding: 40px 24px 24px;
+}
+
+footer .footer p {
+  margin: 0;
+}
+
+@media (width >= 900px) {
+  footer .footer > div {
+    padding: 40px 32px 24px;
+  }
+}
+
+
+================================================
+File: blocks/footer/footer.js
+================================================
+import { getMetadata } from '../../scripts/aem.js';
+import { loadFragment } from '../fragment/fragment.js';
+
+/**
+ * loads and decorates the footer
+ * @param {Element} block The footer block element
+ */
+export default async function decorate(block) {
+  // load footer as fragment
+  const footerMeta = getMetadata('footer');
+  const footerPath = footerMeta ? new URL(footerMeta, window.location).pathname : '/footer';
+  const fragment = await loadFragment(footerPath);
+
+  // decorate footer DOM
+  block.textContent = '';
+  const footer = document.createElement('div');
+  while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
+
+  block.append(footer);
+}
+
+
+================================================
+File: blocks/form/form-fields.js
+================================================
+import { toClassName } from '../../scripts/aem.js';
+
+function createFieldWrapper(fd) {
+  const fieldWrapper = document.createElement('div');
+  if (fd.Style) fieldWrapper.className = fd.Style;
+  fieldWrapper.classList.add('field-wrapper', `${fd.Type}-wrapper`);
+
+  fieldWrapper.dataset.fieldset = fd.Fieldset;
+
+  return fieldWrapper;
+}
+
+const ids = [];
+function generateFieldId(fd, suffix = '') {
+  const slug = toClassName(`form-${fd.Name}${suffix}`);
+  ids[slug] = ids[slug] || 0;
+  const idSuffix = ids[slug] ? `-${ids[slug]}` : '';
+  ids[slug] += 1;
+  return `${slug}${idSuffix}`;
+}
+
+function createLabel(fd) {
+  const label = document.createElement('label');
+  label.id = generateFieldId(fd, '-label');
+  label.textContent = fd.Label || fd.Name;
+  label.setAttribute('for', fd.Id);
+  if (fd.Mandatory.toLowerCase() === 'true' || fd.Mandatory.toLowerCase() === 'x') {
+    label.dataset.required = true;
+  }
+  return label;
+}
+
+function setCommonAttributes(field, fd) {
+  field.id = fd.Id;
+  field.name = fd.Name;
+  field.required = fd.Mandatory && (fd.Mandatory.toLowerCase() === 'true' || fd.Mandatory.toLowerCase() === 'x');
+  field.placeholder = fd.Placeholder;
+  field.value = fd.Value;
+}
+
+const createHeading = (fd) => {
+  const fieldWrapper = createFieldWrapper(fd);
+
+  const level = fd.Style && fd.Style.includes('sub-heading') ? 3 : 2;
+  const heading = document.createElement(`h${level}`);
+  heading.textContent = fd.Value || fd.Label;
+  heading.id = fd.Id;
+
+  fieldWrapper.append(heading);
+
+  return { field: heading, fieldWrapper };
+};
+
+const createPlaintext = (fd) => {
+  const fieldWrapper = createFieldWrapper(fd);
+
+  const text = document.createElement('p');
+  text.textContent = fd.Value || fd.Label;
+  text.id = fd.Id;
+
+  fieldWrapper.append(text);
+
+  return { field: text, fieldWrapper };
+};
+
+const createSelect = async (fd) => {
+  const select = document.createElement('select');
+  setCommonAttributes(select, fd);
+  const addOption = ({ text, value }) => {
+    const option = document.createElement('option');
+    option.text = text.trim();
+    option.value = value.trim();
+    if (option.value === fd.Value) {
+      option.setAttribute('selected', '');
+    }
+    select.add(option);
+    return option;
+  };
+
+  if (fd.Placeholder) {
+    const ph = addOption({ text: fd.Placeholder, value: '' });
+    ph.setAttribute('disabled', '');
+  }
+
+  if (fd.Options) {
+    let options = [];
+    if (fd.Options.startsWith('https://')) {
+      const optionsUrl = new URL(fd.Options);
+      const resp = await fetch(`${optionsUrl.pathname}${optionsUrl.search}`);
+      const json = await resp.json();
+      json.data.forEach((opt) => {
+        options.push({
+          text: opt.Option,
+          value: opt.Value || opt.Option,
+        });
+      });
+    } else {
+      options = fd.Options.split(',').map((opt) => ({
+        text: opt.trim(),
+        value: opt.trim(),
+      }));
+    }
+
+    options.forEach((opt) => addOption(opt));
+  }
+
+  const fieldWrapper = createFieldWrapper(fd);
+  fieldWrapper.append(select);
+  fieldWrapper.prepend(createLabel(fd));
+
+  return { field: select, fieldWrapper };
+};
+
+const createConfirmation = (fd, form) => {
+  form.dataset.confirmation = new URL(fd.Value).pathname;
+
+  return {};
+};
+
+const createSubmit = (fd) => {
+  const button = document.createElement('button');
+  button.textContent = fd.Label || fd.Name;
+  button.classList.add('button');
+  button.type = 'submit';
+
+  const fieldWrapper = createFieldWrapper(fd);
+  fieldWrapper.append(button);
+  return { field: button, fieldWrapper };
+};
+
+const createTextArea = (fd) => {
+  const field = document.createElement('textarea');
+  setCommonAttributes(field, fd);
+
+  const fieldWrapper = createFieldWrapper(fd);
+  const label = createLabel(fd);
+  field.setAttribute('aria-labelledby', label.id);
+  fieldWrapper.append(field);
+  fieldWrapper.prepend(label);
+
+  return { field, fieldWrapper };
+};
+
+const createInput = (fd) => {
+  const field = document.createElement('input');
+  field.type = fd.Type;
+  setCommonAttributes(field, fd);
+
+  const fieldWrapper = createFieldWrapper(fd);
+  const label = createLabel(fd);
+  field.setAttribute('aria-labelledby', label.id);
+  fieldWrapper.append(field);
+  if (fd.Type === 'radio' || fd.Type === 'checkbox') {
+    fieldWrapper.append(label);
+  } else {
+    fieldWrapper.prepend(label);
+  }
+
+  return { field, fieldWrapper };
+};
+
+const createFieldset = (fd) => {
+  const field = document.createElement('fieldset');
+  setCommonAttributes(field, fd);
+
+  if (fd.Label) {
+    const legend = document.createElement('legend');
+    legend.textContent = fd.Label;
+    field.append(legend);
+  }
+
+  const fieldWrapper = createFieldWrapper(fd);
+  fieldWrapper.append(field);
+
+  return { field, fieldWrapper };
+};
+
+const createToggle = (fd) => {
+  const { field, fieldWrapper } = createInput(fd);
+  field.type = 'checkbox';
+  if (!field.value) field.value = 'on';
+  field.classList.add('toggle');
+  fieldWrapper.classList.add('selection-wrapper');
+
+  const toggleSwitch = document.createElement('div');
+  toggleSwitch.classList.add('switch');
+  toggleSwitch.append(field);
+  fieldWrapper.append(toggleSwitch);
+
+  const slider = document.createElement('span');
+  slider.classList.add('slider');
+  toggleSwitch.append(slider);
+  slider.addEventListener('click', () => {
+    field.checked = !field.checked;
+  });
+
+  return { field, fieldWrapper };
+};
+
+const createCheckbox = (fd) => {
+  const { field, fieldWrapper } = createInput(fd);
+  if (!field.value) field.value = 'checked';
+  fieldWrapper.classList.add('selection-wrapper');
+
+  return { field, fieldWrapper };
+};
+
+const createRadio = (fd) => {
+  const { field, fieldWrapper } = createInput(fd);
+  if (!field.value) field.value = fd.Label || 'on';
+  fieldWrapper.classList.add('selection-wrapper');
+
+  return { field, fieldWrapper };
+};
+
+const FIELD_CREATOR_FUNCTIONS = {
+  select: createSelect,
+  heading: createHeading,
+  plaintext: createPlaintext,
+  'text-area': createTextArea,
+  toggle: createToggle,
+  submit: createSubmit,
+  confirmation: createConfirmation,
+  fieldset: createFieldset,
+  checkbox: createCheckbox,
+  radio: createRadio,
+};
+
+export default async function createField(fd, form) {
+  fd.Id = fd.Id || generateFieldId(fd);
+  const type = fd.Type.toLowerCase();
+  const createFieldFunc = FIELD_CREATOR_FUNCTIONS[type] || createInput;
+  const fieldElements = await createFieldFunc(fd, form);
+
+  return fieldElements.fieldWrapper;
+}
+
+
+================================================
+File: blocks/form/form.css
+================================================
+.form .field-wrapper {
+  display: grid;
+  grid-auto-flow: row;
+  align-items: center;
+}
+
+.form fieldset {
+  display: grid;
+  grid-auto-flow: row;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.form form > .field-wrapper + .field-wrapper,
+.form form fieldset .field-wrapper + .field-wrapper {
+  margin-top: 24px;
+}
+
+.form form > .selection-wrapper + .selection-wrapper,
+.form form fieldset .selection-wrapper + .selection-wrapper {
+  margin-top: 0.25em;
+}
+
+@media (width >= 600px) {
+  .form fieldset {
+    grid-template-columns: repeat(2, auto);
+    gap: 0.25em 24px;
+  }
+
+  .form form > .selection-wrapper + .selection-wrapper,
+  .form form fieldset .field-wrapper + .field-wrapper,
+  .form form fieldset .selection-wrapper + .selection-wrapper {
+    margin-top: 0;
+  }
+}
+
+@media (width >= 900px) {
+  .form fieldset {
+    grid-template-columns: repeat(3, auto);
+  }
+}
+
+.form label,
+.form fieldset > legend {
+  margin-bottom: 0.25em;
+  font-size: var(--body-font-size-s);
+  font-weight: 700;
+}
+
+.form .selection-wrapper label {
+  margin: 0;
+  font-weight: normal;
+}
+
+.form input,
+.form select,
+.form textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.5em;
+  border-radius: 4px;
+  border: 1px solid var(--dark-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: var(--body-font-size-s);
+  transition: border-color 0.2s;
+}
+
+.form textarea {
+  resize: vertical;
+}
+
+.form input:hover,
+.form select:hover,
+.form textarea:hover {
+  border: 1px solid var(--text-color);
+}
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.form .selection-wrapper input {
+  width: max-content;
+}
+
+@media (width >= 600px) {
+  .form input,
+  .form select,
+  .form textarea {
+    max-width: 50vw;
+  }
+
+  .form .button {
+    max-width: max-content;
+  }
+}
+
+@media (width >= 900px) {
+  .form input,
+  .form select,
+  .form textarea {
+    max-width: 33vw;
+  }
+}
+
+.form .field-wrapper.selection-wrapper {
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 1ch;
+}
+
+.form label[data-required]::after {
+  content: '*';
+  color: firebrick;
+  margin-inline-start: 1ch;
+}
+
+.form .toggle-wrapper .switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.form .toggle-wrapper input {
+  opacity: 0;
+  width: 52px;
+  height: 28px;
+}
+
+.form .toggle-wrapper .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  border-radius: 28px;
+  background-color: var(--dark-color);
+  transition: background-color 0.2s;
+}
+
+.form .toggle-wrapper .slider::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: 2px;
+  left: 2px;
+  border-radius: 50%;
+  background-color: var(--background-color);
+  transition: transform 0.2s;
+}
+
+.form .toggle-wrapper input:checked + .slider {
+  background-color: var(--link-color);
+}
+
+.form .toggle-wrapper input:focus + .slider {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.form .toggle-wrapper input:checked + .slider::before {
+  transform: translateX(24px);
+}
+
+
+================================================
+File: blocks/form/form.js
+================================================
+import createField from './form-fields.js';
+
+async function createForm(formHref, submitHref) {
+  const { pathname } = new URL(formHref);
+  const resp = await fetch(pathname);
+  const json = await resp.json();
+
+  const form = document.createElement('form');
+  form.dataset.action = submitHref;
+
+  const fields = await Promise.all(json.data.map((fd) => createField(fd, form)));
+  fields.forEach((field) => {
+    if (field) {
+      form.append(field);
+    }
+  });
+
+  // group fields into fieldsets
+  const fieldsets = form.querySelectorAll('fieldset');
+  fieldsets.forEach((fieldset) => {
+    form.querySelectorAll(`[data-fieldset="${fieldset.name}"`).forEach((field) => {
+      fieldset.append(field);
+    });
+  });
+
+  return form;
+}
+
+function generatePayload(form) {
+  const payload = {};
+
+  [...form.elements].forEach((field) => {
+    if (field.name && field.type !== 'submit' && !field.disabled) {
+      if (field.type === 'radio') {
+        if (field.checked) payload[field.name] = field.value;
+      } else if (field.type === 'checkbox') {
+        if (field.checked) payload[field.name] = payload[field.name] ? `${payload[field.name]},${field.value}` : field.value;
+      } else {
+        payload[field.name] = field.value;
+      }
+    }
+  });
+  return payload;
+}
+
+async function handleSubmit(form) {
+  if (form.getAttribute('data-submitting') === 'true') return;
+
+  const submit = form.querySelector('button[type="submit"]');
+  try {
+    form.setAttribute('data-submitting', 'true');
+    submit.disabled = true;
+
+    // create payload
+    const payload = generatePayload(form);
+    const response = await fetch(form.dataset.action, {
+      method: 'POST',
+      body: JSON.stringify({ data: payload }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      if (form.dataset.confirmation) {
+        window.location.href = form.dataset.confirmation;
+      }
+    } else {
+      const error = await response.text();
+      throw new Error(error);
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+  } finally {
+    form.setAttribute('data-submitting', 'false');
+    submit.disabled = false;
+  }
+}
+
+export default async function decorate(block) {
+  const links = [...block.querySelectorAll('a')].map((a) => a.href);
+  const formLink = links.find((link) => link.startsWith(window.location.origin) && link.endsWith('.json'));
+  const submitLink = links.find((link) => link !== formLink);
+  if (!formLink || !submitLink) return;
+
+  const form = await createForm(formLink, submitLink);
+  block.replaceChildren(form);
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const valid = form.checkValidity();
+    if (valid) {
+      handleSubmit(form);
+    } else {
+      const firstInvalidEl = form.querySelector(':invalid:not(fieldset)');
+      if (firstInvalidEl) {
+        firstInvalidEl.focus();
+        firstInvalidEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
+}
+
+
+================================================
+File: blocks/fragment/fragment.css
+================================================
+/* stylelint-disable no-empty-source */
+
+
+================================================
+File: blocks/fragment/fragment.js
+================================================
+/*
+ * Fragment Block
+ * Include content on a page as a fragment.
+ * https://www.aem.live/developer/block-collection/fragment
+ */
+
+import {
+  decorateMain,
+} from '../../scripts/scripts.js';
+
+import {
+  loadSections,
+} from '../../scripts/aem.js';
+
+/**
+ * Loads a fragment.
+ * @param {string} path The path to the fragment
+ * @returns {Promise<HTMLElement>} The root element of the fragment
+ */
+export async function loadFragment(path) {
+  if (path && path.startsWith('/')) {
+    const resp = await fetch(`${path}.plain.html`);
+    if (resp.ok) {
+      const main = document.createElement('main');
+      main.innerHTML = await resp.text();
+
+      // reset base path for media to fragment base
+      const resetAttributeBase = (tag, attr) => {
+        main.querySelectorAll(`${tag}[${attr}^="./media_"]`).forEach((elem) => {
+          elem[attr] = new URL(elem.getAttribute(attr), new URL(path, window.location)).href;
+        });
+      };
+      resetAttributeBase('img', 'src');
+      resetAttributeBase('source', 'srcset');
+
+      decorateMain(main);
+      await loadSections(main);
+      return main;
+    }
+  }
+  return null;
+}
+
+export default async function decorate(block) {
+  const link = block.querySelector('a');
+  const path = link ? link.getAttribute('href') : block.textContent.trim();
+  const fragment = await loadFragment(path);
+  if (fragment) {
+    const fragmentSection = fragment.querySelector(':scope .section');
+    if (fragmentSection) {
+      block.closest('.section').classList.add(...fragmentSection.classList);
+      block.closest('.fragment').replaceWith(...fragment.childNodes);
+    }
+  }
+}
+
+
+================================================
+File: blocks/header/header.css
+================================================
+/* header and nav layout */
+header .nav-wrapper {
+  background-color: var(--background-color);
+  width: 100%;
+  z-index: 2;
+  position: fixed;
+}
+
+header nav {
+  box-sizing: border-box;
+  display: grid;
+  grid-template:
+    'hamburger brand tools' var(--nav-height)
+    'sections sections sections' 1fr / auto 1fr auto;
+  align-items: center;
+  gap: 0 24px;
+  margin: auto;
+  max-width: 1248px;
+  height: var(--nav-height);
+  padding: 0 24px;
+  font-family: var(--body-font-family);
+}
+
+header nav[aria-expanded='true'] {
+  grid-template:
+    'hamburger brand' var(--nav-height)
+    'sections sections' 1fr
+    'tools tools' var(--nav-height) / auto 1fr;
+  overflow-y: auto;
+  min-height: 100dvh;
+}
+
+@media (width >= 900px) {
+  header nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0 32px;
+    max-width: 1264px;
+    padding: 0 32px;
+  }
+
+  header nav[aria-expanded='true'] {
+    min-height: 0;
+    overflow: visible;
+  }
+}
+
+header nav p {
+  margin: 0;
+  line-height: 1;
+}
+
+header nav a:any-link {
+  color: currentcolor;
+}
+
+/* hamburger */
+header nav .nav-hamburger {
+  grid-area: hamburger;
+  height: 22px;
+  display: flex;
+  align-items: center;
+}
+
+header nav .nav-hamburger button {
+  height: 22px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: inherit;
+  overflow: initial;
+  text-overflow: initial;
+  white-space: initial;
+}
+
+header nav .nav-hamburger-icon,
+header nav .nav-hamburger-icon::before,
+header nav .nav-hamburger-icon::after {
+  box-sizing: border-box;
+  display: block;
+  position: relative;
+  width: 20px;
+}
+
+header nav .nav-hamburger-icon::before,
+header nav .nav-hamburger-icon::after {
+  content: '';
+  position: absolute;
+  background: currentcolor;
+}
+
+header nav[aria-expanded='false'] .nav-hamburger-icon,
+header nav[aria-expanded='false'] .nav-hamburger-icon::before,
+header nav[aria-expanded='false'] .nav-hamburger-icon::after {
+  height: 2px;
+  border-radius: 2px;
+  background: currentcolor;
+}
+
+header nav[aria-expanded='false'] .nav-hamburger-icon::before {
+  top: -6px;
+}
+
+header nav[aria-expanded='false'] .nav-hamburger-icon::after {
+  top: 6px;
+}
+
+header nav[aria-expanded='true'] .nav-hamburger-icon {
+  height: 22px;
+}
+
+header nav[aria-expanded='true'] .nav-hamburger-icon::before,
+header nav[aria-expanded='true'] .nav-hamburger-icon::after {
+  top: 3px;
+  left: 1px;
+  transform: rotate(45deg);
+  transform-origin: 2px 1px;
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+header nav[aria-expanded='true'] .nav-hamburger-icon::after {
+  top: unset;
+  bottom: 3px;
+  transform: rotate(-45deg);
+}
+
+@media (width >= 900px) {
+  header nav .nav-hamburger {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+/* brand */
+header .nav-brand {
+  grid-area: brand;
+  flex-basis: 128px;
+  font-size: var(--heading-font-size-s);
+  font-weight: 700;
+  line-height: 1;
+}
+
+header nav .nav-brand img {
+  width: 128px;
+  height: auto;
+}
+
+/* sections */
+header nav .nav-sections {
+  grid-area: sections;
+  flex: 1 1 auto;
+  display: none;
+  visibility: hidden;
+}
+
+header nav[aria-expanded='true'] .nav-sections {
+  display: block;
+  visibility: visible;
+  align-self: start;
+}
+
+header nav .nav-sections ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: var(--body-font-size-s);
+}
+
+header nav .nav-sections ul > li {
+  font-weight: 500;
+}
+
+header nav .nav-sections ul > li > ul {
+  margin-top: 0;
+}
+
+header nav .nav-sections ul > li > ul > li {
+  font-weight: 400;
+}
+
+@media (width >= 900px) {
+  header nav .nav-sections {
+    display: block;
+    visibility: visible;
+    white-space: nowrap;
+  }
+
+  header nav[aria-expanded='true'] .nav-sections {
+    align-self: unset;
+  }
+
+  header nav .nav-sections .nav-drop {
+    position: relative;
+    padding-right: 16px;
+    cursor: pointer;
+  }
+
+  header nav .nav-sections .nav-drop::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0.5em;
+    right: 2px;
+    transform: rotate(135deg);
+    width: 6px;
+    height: 6px;
+    border: 2px solid currentcolor;
+    border-radius: 0 1px 0 0;
+    border-width: 2px 2px 0 0;
+  }
+
+  header nav .nav-sections .nav-drop[aria-expanded='true']::after {
+    top: unset;
+    bottom: 0.5em;
+    transform: rotate(315deg);
+  }
+
+  header nav .nav-sections ul {
+    display: flex;
+    gap: 24px;
+    margin: 0;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li {
+    flex: 0 1 auto;
+    position: relative;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > ul {
+    display: none;
+    position: relative;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] > ul {
+    display: block;
+    position: absolute;
+    left: -24px;
+    width: 200px;
+    top: 150%;
+    padding: 16px;
+    background-color: var(--light-color);
+    white-space: initial;
+    z-index: 1;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 16px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--light-color);
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
+    padding: 8px 0;
+  }
+}
+
+/* tools */
+header nav .nav-tools {
+  grid-area: tools;
+}
+
+header nav .nav-tools .button {
+  margin: 0;
+  border: none;
+  padding: 0.5em;
+  background: none;
+  line-height: 0;
+}
+
+/* breadcrumbs */
+header .breadcrumbs {
+  display: none;
+  margin: auto;
+  max-width: 1248px;
+  height: var(--breadcrumbs-height);
+  padding: 0 24px;
+  font-size: var(--body-font-size-xs);
+  overflow: hidden;
+}
+
+header .breadcrumbs ol {
+  display: flex;
+  flex-flow: wrap;
+  list-style: none;
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  gap: 1ch;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+header .breadcrumbs ol li {
+  padding: 0;
+  color: var(--dark-color);
+}
+
+header .breadcrumbs ol li:not(:last-child)::after {
+  content: '/';
+  padding-left: 1ch;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+header .breadcrumbs ol li[aria-current] {
+  color: var(--text-color);
+}
+
+@media (width >= 900px) {
+  header .breadcrumbs {
+    display: block;
+    max-width: 1264px;
+    padding: 0 32px;
+  }
+}
+
+
+================================================
+File: blocks/header/header.js
+================================================
+import { fetchPlaceholders, getMetadata } from '../../scripts/aem.js';
+import { loadFragment } from '../fragment/fragment.js';
+
+// media query match that indicates mobile/tablet width
+const isDesktop = window.matchMedia('(min-width: 900px)');
+
+function closeOnEscape(e) {
+  if (e.code === 'Escape') {
+    const nav = document.getElementById('nav');
+    const navSections = nav.querySelector('.nav-sections');
+    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
+    if (navSectionExpanded && isDesktop.matches) {
+      // eslint-disable-next-line no-use-before-define
+      toggleAllNavSections(navSections);
+      navSectionExpanded.focus();
+    } else if (!isDesktop.matches) {
+      // eslint-disable-next-line no-use-before-define
+      toggleMenu(nav, navSections);
+      nav.querySelector('button').focus();
+    }
+  }
+}
+
+function closeOnFocusLost(e) {
+  const nav = e.currentTarget;
+  if (!nav.contains(e.relatedTarget)) {
+    const navSections = nav.querySelector('.nav-sections');
+    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
+    if (navSectionExpanded && isDesktop.matches) {
+      // eslint-disable-next-line no-use-before-define
+      toggleAllNavSections(navSections, false);
+    } else if (!isDesktop.matches) {
+      // eslint-disable-next-line no-use-before-define
+      toggleMenu(nav, navSections, false);
+    }
+  }
+}
+
+function openOnKeydown(e) {
+  const focused = document.activeElement;
+  const isNavDrop = focused.className === 'nav-drop';
+  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
+    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
+    // eslint-disable-next-line no-use-before-define
+    toggleAllNavSections(focused.closest('.nav-sections'));
+    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
+  }
+}
+
+function focusNavSection() {
+  document.activeElement.addEventListener('keydown', openOnKeydown);
+}
+
+/**
+ * Toggles all nav sections
+ * @param {Element} sections The container element
+ * @param {Boolean} expanded Whether the element should be expanded or collapsed
+ */
+function toggleAllNavSections(sections, expanded = false) {
+  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
+    section.setAttribute('aria-expanded', expanded);
+  });
+}
+
+/**
+ * Toggles the entire nav
+ * @param {Element} nav The container element
+ * @param {Element} navSections The nav sections within the container element
+ * @param {*} forceExpanded Optional param to force nav expand behavior when not null
+ */
+function toggleMenu(nav, navSections, forceExpanded = null) {
+  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
+  const button = nav.querySelector('.nav-hamburger button');
+  document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
+  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
+  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
+  // enable nav dropdown keyboard accessibility
+  const navDrops = navSections.querySelectorAll('.nav-drop');
+  if (isDesktop.matches) {
+    navDrops.forEach((drop) => {
+      if (!drop.hasAttribute('tabindex')) {
+        drop.setAttribute('tabindex', 0);
+        drop.addEventListener('focus', focusNavSection);
+      }
+    });
+  } else {
+    navDrops.forEach((drop) => {
+      drop.removeAttribute('tabindex');
+      drop.removeEventListener('focus', focusNavSection);
+    });
+  }
+
+  // enable menu collapse on escape keypress
+  if (!expanded || isDesktop.matches) {
+    // collapse menu on escape press
+    window.addEventListener('keydown', closeOnEscape);
+    // collapse menu on focus lost
+    nav.addEventListener('focusout', closeOnFocusLost);
+  } else {
+    window.removeEventListener('keydown', closeOnEscape);
+    nav.removeEventListener('focusout', closeOnFocusLost);
+  }
+}
+
+function getDirectTextContent(menuItem) {
+  const menuLink = menuItem.querySelector(':scope > a');
+  if (menuLink) {
+    return menuLink.textContent.trim();
+  }
+  return Array.from(menuItem.childNodes)
+    .filter((n) => n.nodeType === Node.TEXT_NODE)
+    .map((n) => n.textContent)
+    .join(' ');
+}
+
+async function buildBreadcrumbsFromNavTree(nav, currentUrl) {
+  const crumbs = [];
+
+  const homeUrl = document.querySelector('.nav-brand a[href]').href;
+
+  let menuItem = Array.from(nav.querySelectorAll('a')).find((a) => a.href === currentUrl);
+  if (menuItem) {
+    do {
+      const link = menuItem.querySelector(':scope > a');
+      crumbs.unshift({ title: getDirectTextContent(menuItem), url: link ? link.href : null });
+      menuItem = menuItem.closest('ul')?.closest('li');
+    } while (menuItem);
+  } else if (currentUrl !== homeUrl) {
+    crumbs.unshift({ title: getMetadata('og:title'), url: currentUrl });
+  }
+
+  const placeholders = await fetchPlaceholders();
+  const homePlaceholder = placeholders.breadcrumbsHomeLabel || 'Home';
+
+  crumbs.unshift({ title: homePlaceholder, url: homeUrl });
+
+  // last link is current page and should not be linked
+  if (crumbs.length > 1) {
+    crumbs[crumbs.length - 1].url = null;
+  }
+  crumbs[crumbs.length - 1]['aria-current'] = 'page';
+  return crumbs;
+}
+
+async function buildBreadcrumbs() {
+  const breadcrumbs = document.createElement('nav');
+  breadcrumbs.className = 'breadcrumbs';
+
+  const crumbs = await buildBreadcrumbsFromNavTree(document.querySelector('.nav-sections'), document.location.href);
+
+  const ol = document.createElement('ol');
+  ol.append(...crumbs.map((item) => {
+    const li = document.createElement('li');
+    if (item['aria-current']) li.setAttribute('aria-current', item['aria-current']);
+    if (item.url) {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.textContent = item.title;
+      li.append(a);
+    } else {
+      li.textContent = item.title;
+    }
+    return li;
+  }));
+
+  breadcrumbs.append(ol);
+  return breadcrumbs;
+}
+
+/**
+ * loads and decorates the header, mainly the nav
+ * @param {Element} block The header block element
+ */
+export default async function decorate(block) {
+  // load nav as fragment
+  const navMeta = getMetadata('nav');
+  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
+  const fragment = await loadFragment(navPath);
+
+  // decorate nav DOM
+  block.textContent = '';
+  const nav = document.createElement('nav');
+  nav.id = 'nav';
+  while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
+
+  const classes = ['brand', 'sections', 'tools'];
+  classes.forEach((c, i) => {
+    const section = nav.children[i];
+    if (section) section.classList.add(`nav-${c}`);
+  });
+
+  const navBrand = nav.querySelector('.nav-brand');
+  const brandLink = navBrand.querySelector('.button');
+  if (brandLink) {
+    brandLink.className = '';
+    brandLink.closest('.button-container').className = '';
+  }
+
+  const navSections = nav.querySelector('.nav-sections');
+  if (navSections) {
+    navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
+      if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
+      navSection.addEventListener('click', () => {
+        if (isDesktop.matches) {
+          const expanded = navSection.getAttribute('aria-expanded') === 'true';
+          toggleAllNavSections(navSections);
+          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        }
+      });
+    });
+  }
+
+  const navTools = nav.querySelector('.nav-tools');
+  if (navTools) {
+    const search = navTools.querySelector('a[href*="search"]');
+    if (search && search.textContent === '') {
+      search.setAttribute('aria-label', 'Search');
+    }
+  }
+
+  // hamburger for mobile
+  const hamburger = document.createElement('div');
+  hamburger.classList.add('nav-hamburger');
+  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+      <span class="nav-hamburger-icon"></span>
+    </button>`;
+  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
+  nav.prepend(hamburger);
+  nav.setAttribute('aria-expanded', 'false');
+  // prevent mobile nav behavior on window resize
+  toggleMenu(nav, navSections, isDesktop.matches);
+  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+
+  const navWrapper = document.createElement('div');
+  navWrapper.className = 'nav-wrapper';
+  navWrapper.append(nav);
+  block.append(navWrapper);
+
+  if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
+    navWrapper.append(await buildBreadcrumbs());
+  }
+}
+
+
+================================================
+File: blocks/hero/hero.css
+================================================
+.hero-container .hero-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.hero {
+  position: relative;
+  padding: 40px 24px;
+  min-height: 300px;
+}
+
+.hero h1 {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--background-color);
+}
+
+.hero picture {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  object-fit: cover;
+  box-sizing: border-box;
+}
+
+.hero img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+@media (width >= 900px) {
+  .hero {
+    padding: 40px 32px;
+  }
+}
+
+
+================================================
+File: blocks/modal/modal.css
+================================================
+body.modal-open {
+  overflow: hidden;
+}
+
+.modal dialog::backdrop {
+  background-color: rgb(19 19 19 / 75%);
+}
+
+.modal dialog {
+  overscroll-behavior: none;
+  overflow-y: hidden;
+  position: relative;
+  width: calc(100vw - 48px);
+  max-width: 900px;
+  max-height: calc(100dvh - (2 * var(--header-height)));
+  padding: 0;
+  border: 1px solid var(--dark-color);
+}
+
+.modal dialog .modal-content {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  width: 100%;
+  max-height: calc(100dvh - (2 * var(--header-height)) - 48px);
+  padding: 24px;
+  padding-top: 0;
+  margin-top: 44px;
+}
+
+@media (width >= 900px) {
+  .modal dialog {
+    width: calc(100vw - 64px);
+  }
+  
+  .modal dialog .modal-content {
+    max-height: calc(100dvh - (2 * var(--header-height)) - 64px);
+    padding: 32px;
+    padding-top: 0;
+  }
+}
+
+.modal .close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background-color: transparent;
+  color: var(--text-color);
+  line-height: 0;
+}
+
+.modal .close-button .icon.icon-close {
+  content: '';
+  width: 24px;
+  height: 24px;
+}
+
+.modal .close-button .icon.icon-close::before,
+.modal .close-button .icon.icon-close::after {
+  content: '';
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: currentcolor;
+}
+
+.modal .close-button .icon.icon-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg)
+}
+
+.modal dialog .section {
+  padding: 0;
+}
+
+
+================================================
+File: blocks/modal/modal.js
+================================================
+import { loadFragment } from '../fragment/fragment.js';
+import {
+  buildBlock, decorateBlock, loadBlock, loadCSS,
+} from '../../scripts/aem.js';
+
+/*
+  This is not a traditional block, so there is no decorate function.
+  Instead, links to a /modals/ path are automatically transformed into a modal.
+  Other blocks can also use the createModal() and openModal() functions.
+*/
+
+export async function createModal(contentNodes) {
+  await loadCSS(`${window.hlx.codeBasePath}/blocks/modal/modal.css`);
+  const dialog = document.createElement('dialog');
+  const dialogContent = document.createElement('div');
+  dialogContent.classList.add('modal-content');
+  dialogContent.append(...contentNodes);
+  dialog.append(dialogContent);
+
+  const closeButton = document.createElement('button');
+  closeButton.classList.add('close-button');
+  closeButton.setAttribute('aria-label', 'Close');
+  closeButton.type = 'button';
+  closeButton.innerHTML = '<span class="icon icon-close"></span>';
+  closeButton.addEventListener('click', () => dialog.close());
+  dialog.prepend(closeButton);
+
+  const block = buildBlock('modal', '');
+  document.querySelector('main').append(block);
+  decorateBlock(block);
+  await loadBlock(block);
+
+  // close on click outside the dialog
+  dialog.addEventListener('click', (e) => {
+    const {
+      left, right, top, bottom,
+    } = dialog.getBoundingClientRect();
+    const { clientX, clientY } = e;
+    if (clientX < left || clientX > right || clientY < top || clientY > bottom) {
+      dialog.close();
+    }
+  });
+
+  dialog.addEventListener('close', () => {
+    document.body.classList.remove('modal-open');
+    block.remove();
+  });
+
+  block.innerHTML = '';
+  block.append(dialog);
+
+  return {
+    block,
+    showModal: () => {
+      dialog.showModal();
+      // reset scroll position
+      setTimeout(() => { dialogContent.scrollTop = 0; }, 0);
+      document.body.classList.add('modal-open');
+    },
+  };
+}
+
+export async function openModal(fragmentUrl) {
+  const path = fragmentUrl.startsWith('http')
+    ? new URL(fragmentUrl, window.location).pathname
+    : fragmentUrl;
+
+  const fragment = await loadFragment(path);
+  const { showModal } = await createModal(fragment.childNodes);
+  showModal();
+}
+
+
+================================================
+File: blocks/quote/quote.css
+================================================
+.quote blockquote {
+  margin: 0 auto;
+  padding: 0 24px;
+  max-width: 900px;
+}
+
+@media (width >= 900px) {
+  .quote blockquote {
+    padding: 0 32px;
+  }
+}
+
+.quote blockquote .quote-quotation {
+  font-size: 120%;
+}
+
+.quote blockquote .quote-quotation > :first-child {
+  text-indent: -0.5ch;
+}
+
+.quote blockquote .quote-quotation > :first-child::before,
+.quote blockquote .quote-quotation > :last-child::after {
+  line-height: 0;
+}
+
+.quote blockquote .quote-quotation > :first-child::before {
+  content: "“";
+}
+
+.quote blockquote .quote-quotation > :last-child::after {
+  content: "”";
+}
+
+.quote blockquote .quote-attribution {
+  text-align: right;
+}
+
+.quote blockquote .quote-attribution > :first-child::before {
+  content: "—";
+  padding-right: 0.5ch;
+}
+
+
+================================================
+File: blocks/quote/quote.js
+================================================
+export default async function decorate(block) {
+  const [quotation, attribution] = [...block.children].map((c) => c.firstElementChild);
+  const blockquote = document.createElement('blockquote');
+  // decorate quotation
+  quotation.className = 'quote-quotation';
+  blockquote.append(quotation);
+  // decoration attribution
+  if (attribution) {
+    attribution.className = 'quote-attribution';
+    blockquote.append(attribution);
+    const ems = attribution.querySelectorAll('em');
+    ems.forEach((em) => {
+      const cite = document.createElement('cite');
+      cite.innerHTML = em.innerHTML;
+      em.replaceWith(cite);
+    });
+  }
+  block.innerHTML = '';
+  block.append(blockquote);
+}
+
+
+================================================
+File: blocks/search/search.css
+================================================
+/* search box */
+.search .search-box {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1ch;
+  align-items: center;
+}
+
+.search .search-box input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.5em;
+  border-radius: 4px;
+  border: 1px solid var(--dark-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: var(--body-font-size-s);
+  transition: border-color 0.2s;
+}
+
+.search .search-box input:hover {
+  border: 1px solid var(--text-color);
+}
+
+/* search results */
+.search ul.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(278px, 1fr));
+  gap: 24px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.search ul.search-results > li {
+  border: 1px solid #dadada;
+}
+
+.search ul.search-results > li > a {
+  display: block;
+  height: 100%;
+  background-color: transparent;
+  color: currentcolor;
+  cursor: pointer;
+}
+
+.search ul.search-results > li > a:hover,
+.search ul.search-results > li > a:focus {
+  text-decoration: none;
+}
+
+.search ul.search-results > li .search-result-title,
+.search ul.search-results > li p {
+  padding: 0 16px;
+}
+
+.search ul.search-results > li .search-result-title {
+  font-size: var(--body-font-size-m);
+  font-weight: normal;
+}
+
+.search ul.search-results > li .search-result-title a {
+  color: currentcolor;
+  text-decoration: none;
+}
+
+.search ul.search-results > li p {
+  font-size: var(--body-font-size-s);
+}
+
+.search ul.search-results > li .search-result-image {
+  aspect-ratio: 4 / 3;
+}
+
+.search ul.search-results > li picture img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* no results */
+.search ul.search-results.no-results {
+  display: block;
+  margin-left: 34px;
+}
+
+.search ul.search-results.no-results > li {
+  border: none;
+}
+
+/* minimal variant */
+.search.minimal ul.search-results {
+  display: block;
+  padding-left: 34px;
+}
+
+.search.minimal ul.search-results > li {
+  position: relative;
+  border: none;
+}
+
+.search.minimal ul.search-results > li .search-result-title,
+.search.minimal ul.search-results > li p {
+  padding: unset;
+}
+
+.search.minimal ul.search-results > li .search-result-title a {
+  color: var(--link-color);
+}
+
+/* stylelint-disable no-descending-specificity */
+.search.minimal ul.search-results > li > a {
+  background-color: unset;
+}
+
+.search.minimal ul.search-results > li > a:hover a,
+.search.minimal ul.search-results > li > a:focus a {
+  text-decoration: underline;
+  color: var(--link-hover-color);
+}
+
+.search.minimal ul.search-results > li .search-result-image {
+  position: absolute;
+  top: 2px;
+  left: -34px;
+}
+
+.search.minimal ul.search-results .search-result-title + p {
+  margin-top: 0.25em;
+}
+
+.search.minimal ul.search-results > li picture img {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+}
+
+
+================================================
+File: blocks/search/search.js
+================================================
+import {
+  createOptimizedPicture,
+  decorateIcons,
+  fetchPlaceholders,
+} from '../../scripts/aem.js';
+
+const searchParams = new URLSearchParams(window.location.search);
+
+function findNextHeading(el) {
+  let preceedingEl = el.parentElement.previousElement || el.parentElement.parentElement;
+  let h = 'H2';
+  while (preceedingEl) {
+    const lastHeading = [...preceedingEl.querySelectorAll('h1, h2, h3, h4, h5, h6')].pop();
+    if (lastHeading) {
+      const level = parseInt(lastHeading.nodeName[1], 10);
+      h = level < 6 ? `H${level + 1}` : 'H6';
+      preceedingEl = false;
+    } else {
+      preceedingEl = preceedingEl.previousElement || preceedingEl.parentElement;
+    }
+  }
+  return h;
+}
+
+function highlightTextElements(terms, elements) {
+  elements.forEach((element) => {
+    if (!element || !element.textContent) return;
+
+    const matches = [];
+    const { textContent } = element;
+    terms.forEach((term) => {
+      let start = 0;
+      let offset = textContent.toLowerCase().indexOf(term.toLowerCase(), start);
+      while (offset >= 0) {
+        matches.push({ offset, term: textContent.substring(offset, offset + term.length) });
+        start = offset + term.length;
+        offset = textContent.toLowerCase().indexOf(term.toLowerCase(), start);
+      }
+    });
+
+    if (!matches.length) {
+      return;
+    }
+
+    matches.sort((a, b) => a.offset - b.offset);
+    let currentIndex = 0;
+    const fragment = matches.reduce((acc, { offset, term }) => {
+      if (offset < currentIndex) return acc;
+      const textBefore = textContent.substring(currentIndex, offset);
+      if (textBefore) {
+        acc.appendChild(document.createTextNode(textBefore));
+      }
+      const markedTerm = document.createElement('mark');
+      markedTerm.textContent = term;
+      acc.appendChild(markedTerm);
+      currentIndex = offset + term.length;
+      return acc;
+    }, document.createDocumentFragment());
+    const textAfter = textContent.substring(currentIndex);
+    if (textAfter) {
+      fragment.appendChild(document.createTextNode(textAfter));
+    }
+    element.innerHTML = '';
+    element.appendChild(fragment);
+  });
+}
+
+export async function fetchData(source) {
+  const response = await fetch(source);
+  if (!response.ok) {
+    // eslint-disable-next-line no-console
+    console.error('error loading API response', response);
+    return null;
+  }
+
+  const json = await response.json();
+  if (!json) {
+    // eslint-disable-next-line no-console
+    console.error('empty API response', source);
+    return null;
+  }
+
+  return json.data;
+}
+
+function renderResult(result, searchTerms, titleTag) {
+  const li = document.createElement('li');
+  const a = document.createElement('a');
+  a.href = result.path;
+  if (result.image) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'search-result-image';
+    const pic = createOptimizedPicture(result.image, '', false, [{ width: '375' }]);
+    wrapper.append(pic);
+    a.append(wrapper);
+  }
+  if (result.title) {
+    const title = document.createElement(titleTag);
+    title.className = 'search-result-title';
+    const link = document.createElement('a');
+    link.href = result.path;
+    link.textContent = result.title;
+    highlightTextElements(searchTerms, [link]);
+    title.append(link);
+    a.append(title);
+  }
+  if (result.description) {
+    const description = document.createElement('p');
+    description.textContent = result.description;
+    highlightTextElements(searchTerms, [description]);
+    a.append(description);
+  }
+  li.append(a);
+  return li;
+}
+
+function clearSearchResults(block) {
+  const searchResults = block.querySelector('.search-results');
+  searchResults.innerHTML = '';
+}
+
+function clearSearch(block) {
+  clearSearchResults(block);
+  if (window.history.replaceState) {
+    const url = new URL(window.location.href);
+    url.search = '';
+    searchParams.delete('q');
+    window.history.replaceState({}, '', url.toString());
+  }
+}
+
+async function renderResults(block, config, filteredData, searchTerms) {
+  clearSearchResults(block);
+  const searchResults = block.querySelector('.search-results');
+  const headingTag = searchResults.dataset.h;
+
+  if (filteredData.length) {
+    searchResults.classList.remove('no-results');
+    filteredData.forEach((result) => {
+      const li = renderResult(result, searchTerms, headingTag);
+      searchResults.append(li);
+    });
+  } else {
+    const noResultsMessage = document.createElement('li');
+    searchResults.classList.add('no-results');
+    noResultsMessage.textContent = config.placeholders.searchNoResults || 'No results found.';
+    searchResults.append(noResultsMessage);
+  }
+}
+
+function compareFound(hit1, hit2) {
+  return hit1.minIdx - hit2.minIdx;
+}
+
+function filterData(searchTerms, data) {
+  const foundInHeader = [];
+  const foundInMeta = [];
+
+  data.forEach((result) => {
+    let minIdx = -1;
+
+    searchTerms.forEach((term) => {
+      const idx = (result.header || result.title).toLowerCase().indexOf(term);
+      if (idx < 0) return;
+      if (minIdx < idx) minIdx = idx;
+    });
+
+    if (minIdx >= 0) {
+      foundInHeader.push({ minIdx, result });
+      return;
+    }
+
+    const metaContents = `${result.title} ${result.description} ${result.path.split('/').pop()}`.toLowerCase();
+    searchTerms.forEach((term) => {
+      const idx = metaContents.indexOf(term);
+      if (idx < 0) return;
+      if (minIdx < idx) minIdx = idx;
+    });
+
+    if (minIdx >= 0) {
+      foundInMeta.push({ minIdx, result });
+    }
+  });
+
+  return [
+    ...foundInHeader.sort(compareFound),
+    ...foundInMeta.sort(compareFound),
+  ].map((item) => item.result);
+}
+
+async function handleSearch(e, block, config) {
+  const searchValue = e.target.value;
+  searchParams.set('q', searchValue);
+  if (window.history.replaceState) {
+    const url = new URL(window.location.href);
+    url.search = searchParams.toString();
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  if (searchValue.length < 3) {
+    clearSearch(block);
+    return;
+  }
+  const searchTerms = searchValue.toLowerCase().split(/\s+/).filter((term) => !!term);
+
+  const data = await fetchData(config.source);
+  const filteredData = filterData(searchTerms, data);
+  await renderResults(block, config, filteredData, searchTerms);
+}
+
+function searchResultsContainer(block) {
+  const results = document.createElement('ul');
+  results.className = 'search-results';
+  results.dataset.h = findNextHeading(block);
+  return results;
+}
+
+function searchInput(block, config) {
+  const input = document.createElement('input');
+  input.setAttribute('type', 'search');
+  input.className = 'search-input';
+
+  const searchPlaceholder = config.placeholders.searchPlaceholder || 'Search...';
+  input.placeholder = searchPlaceholder;
+  input.setAttribute('aria-label', searchPlaceholder);
+
+  input.addEventListener('input', (e) => {
+    handleSearch(e, block, config);
+  });
+
+  input.addEventListener('keyup', (e) => { if (e.code === 'Escape') { clearSearch(block); } });
+
+  return input;
+}
+
+function searchIcon() {
+  const icon = document.createElement('span');
+  icon.classList.add('icon', 'icon-search');
+  return icon;
+}
+
+function searchBox(block, config) {
+  const box = document.createElement('div');
+  box.classList.add('search-box');
+  box.append(
+    searchIcon(),
+    searchInput(block, config),
+  );
+
+  return box;
+}
+
+export default async function decorate(block) {
+  const placeholders = await fetchPlaceholders();
+  const source = block.querySelector('a[href]') ? block.querySelector('a[href]').href : '/query-index.json';
+  block.innerHTML = '';
+  block.append(
+    searchBox(block, { source, placeholders }),
+    searchResultsContainer(block),
+  );
+
+  if (searchParams.get('q')) {
+    const input = block.querySelector('input');
+    input.value = searchParams.get('q');
+    input.dispatchEvent(new Event('input'));
+  }
+
+  decorateIcons(block);
+}
+
+
+================================================
+File: blocks/table/table.css
+================================================
+.table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: var(--body-font-size-xs);
+}
+
+@media (width >= 600px) {
+  .table table {
+    font-size: var(--body-font-size-s);
+  }
+}
+
+@media (width >= 900px) {
+  .table table {
+    font-size: var(--body-font-size-m);
+  }
+}
+
+.table table thead tr {
+  border-top: 2px solid #dadada;
+  border-bottom: 2px solid #dadada;
+}
+
+.table table tbody tr {
+  border-bottom: 1px solid #dadada;
+}
+
+.table table th {
+  font-weight: 700;
+}
+
+.table table th,
+.table table td {
+  padding: 0.5em;
+  text-align: left;
+}
+
+.table table th p,
+.table table td p {
+  margin: 0;
+}
+
+.table table td p + p {
+  margin-top: 0.25em;
+}
+
+/* no header variant */
+.table.no-header table tbody tr {
+  border-top: 1px solid #dadada;
+}
+
+/* striped variant */
+.table.striped tbody tr:nth-child(odd) {
+  background-color: var(--light-color);
+}
+
+/* bordered variant */
+.table.bordered table th,
+.table.bordered table td {
+  border: 1px solid #dadada;
+}
+
+
+================================================
+File: blocks/table/table.js
+================================================
+/*
+ * Table Block
+ * Recreate a table
+ * https://www.hlx.live/developer/block-collection/table
+ */
+
+function buildCell(rowIndex) {
+  const cell = rowIndex ? document.createElement('td') : document.createElement('th');
+  if (!rowIndex) cell.setAttribute('scope', 'col');
+  return cell;
+}
+
+export default async function decorate(block) {
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const tbody = document.createElement('tbody');
+
+  const header = !block.classList.contains('no-header');
+  if (header) table.append(thead);
+  table.append(tbody);
+
+  [...block.children].forEach((child, i) => {
+    const row = document.createElement('tr');
+    if (header && i === 0) thead.append(row);
+    else tbody.append(row);
+    [...child.children].forEach((col) => {
+      const cell = buildCell(header ? i : i + 1);
+      const align = col.getAttribute('data-align');
+      const valign = col.getAttribute('data-valign');
+      if (align) cell.style.textAlign = align;
+      if (valign) cell.style.verticalAlign = valign;
+      cell.innerHTML = col.innerHTML;
+      row.append(cell);
+    });
+  });
+  block.innerHTML = '';
+  block.append(table);
+}
+
+
+================================================
+File: blocks/tabs/tabs.css
+================================================
+.tabs .tabs-list {
+  display: flex;
+  gap: 0.5ch;
+  max-width: 100%;
+  font-size: var(--body-font-size-xs);
+  overflow-x: auto;
+}
+
+@media (width >= 600px) {
+  .tabs .tabs-list {
+    font-size: var(--body-font-size-s);
+  }
+}
+
+@media (width >= 900px) {
+  .tabs .tabs-list {
+    font-size: var(--body-font-size-m);
+  }
+}
+
+.tabs .tabs-list button {
+  flex: 0 0 max-content;
+  margin: 0;
+  border: 1px solid #dadada;
+  border-radius: 0;
+  padding: 0.5em;
+  background-color: var(--light-color);
+  color: initial;
+  font-weight: bold;
+  line-height: unset;
+  text-align: initial;
+  text-overflow: unset;
+  overflow: unset;
+  white-space: unset;
+  transition: background-color 0.2s;
+}
+
+.tabs .tabs-list button p {
+  margin: 0;
+}
+
+
+.tabs .tabs-list button[aria-selected='true'] {
+  border-bottom: 1px solid var(--background-color);
+  background-color: var(--background-color);
+  cursor: initial;
+}
+
+.tabs .tabs-panel {
+  margin-top: -1px;
+  padding: 24px;
+  border: 1px solid #dadada;
+  overflow: auto;
+}
+
+.tabs .tabs-panel[aria-hidden='true'] {
+  display: none;
+}
+
+
+================================================
+File: blocks/tabs/tabs.js
+================================================
+// eslint-disable-next-line import/no-unresolved
+import { toClassName } from '../../scripts/aem.js';
+
+export default async function decorate(block) {
+  // build tablist
+  const tablist = document.createElement('div');
+  tablist.className = 'tabs-list';
+  tablist.setAttribute('role', 'tablist');
+
+  // decorate tabs and tabpanels
+  const tabs = [...block.children].map((child) => child.firstElementChild);
+  tabs.forEach((tab, i) => {
+    const id = toClassName(tab.textContent);
+
+    // decorate tabpanel
+    const tabpanel = block.children[i];
+    tabpanel.className = 'tabs-panel';
+    tabpanel.id = `tabpanel-${id}`;
+    tabpanel.setAttribute('aria-hidden', !!i);
+    tabpanel.setAttribute('aria-labelledby', `tab-${id}`);
+    tabpanel.setAttribute('role', 'tabpanel');
+
+    // build tab button
+    const button = document.createElement('button');
+    button.className = 'tabs-tab';
+    button.id = `tab-${id}`;
+    button.innerHTML = tab.innerHTML;
+    button.setAttribute('aria-controls', `tabpanel-${id}`);
+    button.setAttribute('aria-selected', !i);
+    button.setAttribute('role', 'tab');
+    button.setAttribute('type', 'button');
+    button.addEventListener('click', () => {
+      block.querySelectorAll('[role=tabpanel]').forEach((panel) => {
+        panel.setAttribute('aria-hidden', true);
+      });
+      tablist.querySelectorAll('button').forEach((btn) => {
+        btn.setAttribute('aria-selected', false);
+      });
+      tabpanel.setAttribute('aria-hidden', false);
+      button.setAttribute('aria-selected', true);
+    });
+    tablist.append(button);
+    tab.remove();
+  });
+
+  block.prepend(tablist);
+}
+
+
+================================================
+File: blocks/video/video.css
+================================================
+.video {
+  text-align: center;
+  max-width: 900px;
+  margin: 24px auto;
+}
+
+.video[data-embed-loaded='false']:not(.placeholder) {
+  /* reserve an approximate space to avoid extensive layout shifts */
+  aspect-ratio: 16 / 9;
+}
+
+.video > div {
+  display: flex;
+  justify-content: center;
+}
+
+.video video {
+  max-width: 100%;
+}
+
+.video .video-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.video .video-placeholder > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+}
+
+.video[data-embed-loaded='true'] .video-placeholder,
+.video[data-embed-loaded='false'] .video-placeholder + * {
+  visibility: hidden;
+  height: 0;
+  width: 0;
+}
+
+.video .video-placeholder picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video .video-placeholder-play button {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  outline: 2px solid;
+  padding: 0;
+}
+
+.video .video-placeholder-play button::before {
+  content: '';
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 0;
+  height: 24px;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 18px solid;
+  top: 50%;
+  left: calc(50% + 2px);
+  transform: translate(-50%, -50%);
+}
+
+
+================================================
+File: blocks/video/video.js
+================================================
+/*
+ * Video Block
+ * Show a video referenced by a link
+ * https://www.hlx.live/developer/block-collection/video
+ */
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function embedYoutube(url, autoplay, background) {
+  const usp = new URLSearchParams(url.search);
+  let suffix = '';
+  if (background || autoplay) {
+    const suffixParams = {
+      autoplay: autoplay ? '1' : '0',
+      mute: background ? '1' : '0',
+      controls: background ? '0' : '1',
+      disablekb: background ? '1' : '0',
+      loop: background ? '1' : '0',
+      playsinline: background ? '1' : '0',
+    };
+    suffix = `&${Object.entries(suffixParams).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
+  }
+  let vid = usp.get('v') ? encodeURIComponent(usp.get('v')) : '';
+  const embed = url.pathname;
+  if (url.origin.includes('youtu.be')) {
+    [, vid] = url.pathname.split('/');
+  }
+
+  const temp = document.createElement('div');
+  temp.innerHTML = `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;">
+      <iframe src="https://www.youtube.com${vid ? `/embed/${vid}?rel=0&v=${vid}${suffix}` : embed}" style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" 
+      allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; picture-in-picture" allowfullscreen="" scrolling="no" title="Content from Youtube" loading="lazy"></iframe>
+    </div>`;
+  return temp.children.item(0);
+}
+
+function embedVimeo(url, autoplay, background) {
+  const [, video] = url.pathname.split('/');
+  let suffix = '';
+  if (background || autoplay) {
+    const suffixParams = {
+      autoplay: autoplay ? '1' : '0',
+      background: background ? '1' : '0',
+    };
+    suffix = `?${Object.entries(suffixParams).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
+  }
+  const temp = document.createElement('div');
+  temp.innerHTML = `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;">
+      <iframe src="https://player.vimeo.com/video/${video}${suffix}" 
+      style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" 
+      frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen  
+      title="Content from Vimeo" loading="lazy"></iframe>
+    </div>`;
+  return temp.children.item(0);
+}
+
+function getVideoElement(source, autoplay, background) {
+  const video = document.createElement('video');
+  video.setAttribute('controls', '');
+  if (autoplay) video.setAttribute('autoplay', '');
+  if (background) {
+    video.setAttribute('loop', '');
+    video.setAttribute('playsinline', '');
+    video.removeAttribute('controls');
+    video.addEventListener('canplay', () => {
+      video.muted = true;
+      if (autoplay) video.play();
+    });
+  }
+
+  const sourceEl = document.createElement('source');
+  sourceEl.setAttribute('src', source);
+  sourceEl.setAttribute('type', `video/${source.split('.').pop()}`);
+  video.append(sourceEl);
+
+  return video;
+}
+
+const loadVideoEmbed = (block, link, autoplay, background) => {
+  if (block.dataset.embedLoaded === 'true') {
+    return;
+  }
+  const url = new URL(link);
+
+  const isYoutube = link.includes('youtube') || link.includes('youtu.be');
+  const isVimeo = link.includes('vimeo');
+
+  if (isYoutube) {
+    const embedWrapper = embedYoutube(url, autoplay, background);
+    block.append(embedWrapper);
+    embedWrapper.querySelector('iframe').addEventListener('load', () => {
+      block.dataset.embedLoaded = true;
+    });
+  } else if (isVimeo) {
+    const embedWrapper = embedVimeo(url, autoplay, background);
+    block.append(embedWrapper);
+    embedWrapper.querySelector('iframe').addEventListener('load', () => {
+      block.dataset.embedLoaded = true;
+    });
+  } else {
+    const videoEl = getVideoElement(link, autoplay, background);
+    block.append(videoEl);
+    videoEl.addEventListener('canplay', () => {
+      block.dataset.embedLoaded = true;
+    });
+  }
+};
+
+export default async function decorate(block) {
+  const placeholder = block.querySelector('picture');
+  const link = block.querySelector('a').href;
+  block.textContent = '';
+  block.dataset.embedLoaded = false;
+
+  const autoplay = block.classList.contains('autoplay');
+  if (placeholder) {
+    block.classList.add('placeholder');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'video-placeholder';
+    wrapper.append(placeholder);
+
+    if (!autoplay) {
+      wrapper.insertAdjacentHTML(
+        'beforeend',
+        '<div class="video-placeholder-play"><button type="button" title="Play"></button></div>',
+      );
+      wrapper.addEventListener('click', () => {
+        wrapper.remove();
+        loadVideoEmbed(block, link, true, false);
+      });
+    }
+    block.append(wrapper);
+  }
+
+  if (!placeholder || autoplay) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        observer.disconnect();
+        const playOnLoad = autoplay && !prefersReducedMotion.matches;
+        loadVideoEmbed(block, link, playOnLoad, autoplay);
+      }
+    });
+    observer.observe(block);
+  }
+}
+
+
+================================================
+File: scripts/aem.js
+================================================
+/*
+ * Copyright 2024 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
+/* eslint-env browser */
+function sampleRUM(checkpoint, data) {
+  // eslint-disable-next-line max-len
+  const timeShift = () => (window.performance ? window.performance.now() : Date.now() - window.hlx.rum.firstReadTime);
+  try {
+    window.hlx = window.hlx || {};
+    sampleRUM.enhance = () => {};
+    if (!window.hlx.rum) {
+      const param = new URLSearchParams(window.location.search).get('rum');
+      const weight = (window.SAMPLE_PAGEVIEWS_AT_RATE === 'high' && 10)
+        || (window.SAMPLE_PAGEVIEWS_AT_RATE === 'low' && 1000)
+        || (param === 'on' && 1)
+        || 100;
+      const id = Math.random().toString(36).slice(-4);
+      const isSelected = param !== 'off' && Math.random() * weight < 1;
+      // eslint-disable-next-line object-curly-newline, max-len
+      window.hlx.rum = {
+        weight,
+        id,
+        isSelected,
+        firstReadTime: window.performance ? window.performance.timeOrigin : Date.now(),
+        sampleRUM,
+        queue: [],
+        collector: (...args) => window.hlx.rum.queue.push(args),
+      };
+      if (isSelected) {
+        const dataFromErrorObj = (error) => {
+          const errData = { source: 'undefined error' };
+          try {
+            errData.target = error.toString();
+            errData.source = error.stack
+              .split('\n')
+              .filter((line) => line.match(/https?:\/\//))
+              .shift()
+              .replace(/at ([^ ]+) \((.+)\)/, '$1@$2')
+              .replace(/ at /, '@')
+              .trim();
+          } catch (err) {
+            /* error structure was not as expected */
+          }
+          return errData;
+        };
+
+        window.addEventListener('error', ({ error }) => {
+          const errData = dataFromErrorObj(error);
+          sampleRUM('error', errData);
+        });
+
+        window.addEventListener('unhandledrejection', ({ reason }) => {
+          let errData = {
+            source: 'Unhandled Rejection',
+            target: reason || 'Unknown',
+          };
+          if (reason instanceof Error) {
+            errData = dataFromErrorObj(reason);
+          }
+          sampleRUM('error', errData);
+        });
+
+        sampleRUM.baseURL = sampleRUM.baseURL || new URL(window.RUM_BASE || '/', new URL('https://rum.hlx.page'));
+        sampleRUM.collectBaseURL = sampleRUM.collectBaseURL || sampleRUM.baseURL;
+        sampleRUM.sendPing = (ck, time, pingData = {}) => {
+          // eslint-disable-next-line max-len, object-curly-newline
+          const rumData = JSON.stringify({
+            weight,
+            id,
+            referer: window.location.href,
+            checkpoint: ck,
+            t: time,
+            ...pingData,
+          });
+          const urlParams = window.RUM_PARAMS
+            ? `?${new URLSearchParams(window.RUM_PARAMS).toString()}`
+            : '';
+          const { href: url, origin } = new URL(
+            `.rum/${weight}${urlParams}`,
+            sampleRUM.collectBaseURL,
+          );
+          const body = origin === window.location.origin
+            ? new Blob([rumData], { type: 'application/json' })
+            : rumData;
+          navigator.sendBeacon(url, body);
+          // eslint-disable-next-line no-console
+          console.debug(`ping:${ck}`, pingData);
+        };
+        sampleRUM.sendPing('top', timeShift());
+
+        sampleRUM.enhance = () => {
+          // only enhance once
+          if (document.querySelector('script[src*="rum-enhancer"]')) return;
+          const { enhancerVersion, enhancerHash } = sampleRUM.enhancerContext || {};
+          const script = document.createElement('script');
+          if (enhancerHash) {
+            script.integrity = enhancerHash;
+            script.setAttribute('crossorigin', 'anonymous');
+          }
+          script.src = new URL(
+            `.rum/@adobe/helix-rum-enhancer@${enhancerVersion || '^2'}/src/index.js`,
+            sampleRUM.baseURL,
+          ).href;
+          document.head.appendChild(script);
+        };
+        if (!window.hlx.RUM_MANUAL_ENHANCE) {
+          sampleRUM.enhance();
+        }
+      }
+    }
+    if (window.hlx.rum && window.hlx.rum.isSelected && checkpoint) {
+      window.hlx.rum.collector(checkpoint, data, timeShift());
+    }
+    document.dispatchEvent(new CustomEvent('rum', { detail: { checkpoint, data } }));
+  } catch (error) {
+    // something went awry
+  }
+}
+
+/**
+ * Setup block utils.
+ */
+function setup() {
+  window.hlx = window.hlx || {};
+  window.hlx.RUM_MASK_URL = 'full';
+  window.hlx.RUM_MANUAL_ENHANCE = true;
+  window.hlx.codeBasePath = '';
+  window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';
+
+  const scriptEl = document.querySelector('script[src$="/scripts/scripts.js"]');
+  if (scriptEl) {
+    try {
+      [window.hlx.codeBasePath] = new URL(scriptEl.src).pathname.split('/scripts/scripts.js');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+}
+
+/**
+ * Auto initializiation.
+ */
+
+function init() {
+  setup();
+  sampleRUM();
+}
+
+/**
+ * Sanitizes a string for use as class name.
+ * @param {string} name The unsanitized string
+ * @returns {string} The class name
+ */
+function toClassName(name) {
+  return typeof name === 'string'
+    ? name
+      .toLowerCase()
+      .replace(/[^0-9a-z]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+    : '';
+}
+
+/**
+ * Sanitizes a string for use as a js property name.
+ * @param {string} name The unsanitized string
+ * @returns {string} The camelCased name
+ */
+function toCamelCase(name) {
+  return toClassName(name).replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+}
+
+/**
+ * Extracts the config from a block.
+ * @param {Element} block The block element
+ * @returns {object} The block config
+ */
+// eslint-disable-next-line import/prefer-default-export
+function readBlockConfig(block) {
+  const config = {};
+  block.querySelectorAll(':scope > div').forEach((row) => {
+    if (row.children) {
+      const cols = [...row.children];
+      if (cols[1]) {
+        const col = cols[1];
+        const name = toClassName(cols[0].textContent);
+        let value = '';
+        if (col.querySelector('a')) {
+          const as = [...col.querySelectorAll('a')];
+          if (as.length === 1) {
+            value = as[0].href;
+          } else {
+            value = as.map((a) => a.href);
+          }
+        } else if (col.querySelector('img')) {
+          const imgs = [...col.querySelectorAll('img')];
+          if (imgs.length === 1) {
+            value = imgs[0].src;
+          } else {
+            value = imgs.map((img) => img.src);
+          }
+        } else if (col.querySelector('p')) {
+          const ps = [...col.querySelectorAll('p')];
+          if (ps.length === 1) {
+            value = ps[0].textContent;
+          } else {
+            value = ps.map((p) => p.textContent);
+          }
+        } else value = row.children[1].textContent;
+        config[name] = value;
+      }
+    }
+  });
+  return config;
+}
+
+/**
+ * Loads a CSS file.
+ * @param {string} href URL to the CSS file
+ */
+async function loadCSS(href) {
+  return new Promise((resolve, reject) => {
+    if (!document.querySelector(`head > link[href="${href}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.onload = resolve;
+      link.onerror = reject;
+      document.head.append(link);
+    } else {
+      resolve();
+    }
+  });
+}
+
+/**
+ * Loads a non module JS file.
+ * @param {string} src URL to the JS file
+ * @param {Object} attrs additional optional attributes
+ */
+async function loadScript(src, attrs) {
+  return new Promise((resolve, reject) => {
+    if (!document.querySelector(`head > script[src="${src}"]`)) {
+      const script = document.createElement('script');
+      script.src = src;
+      if (attrs) {
+        // eslint-disable-next-line no-restricted-syntax, guard-for-in
+        for (const attr in attrs) {
+          script.setAttribute(attr, attrs[attr]);
+        }
+      }
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.append(script);
+    } else {
+      resolve();
+    }
+  });
+}
+
+/**
+ * Retrieves the content of metadata tags.
+ * @param {string} name The metadata name (or property)
+ * @param {Document} doc Document object to query for metadata. Defaults to the window's document
+ * @returns {string} The metadata value(s)
+ */
+function getMetadata(name, doc = document) {
+  const attr = name && name.includes(':') ? 'property' : 'name';
+  const meta = [...doc.head.querySelectorAll(`meta[${attr}="${name}"]`)]
+    .map((m) => m.content)
+    .join(', ');
+  return meta || '';
+}
+
+/**
+ * Returns a picture element with webp and fallbacks
+ * @param {string} src The image URL
+ * @param {string} [alt] The image alternative text
+ * @param {boolean} [eager] Set loading attribute to eager
+ * @param {Array} [breakpoints] Breakpoints and corresponding params (eg. width)
+ * @returns {Element} The picture element
+ */
+function createOptimizedPicture(
+  src,
+  alt = '',
+  eager = false,
+  breakpoints = [{ media: '(min-width: 600px)', width: '2000' }, { width: '750' }],
+) {
+  const url = new URL(src, window.location.href);
+  const picture = document.createElement('picture');
+  const { pathname } = url;
+  const ext = pathname.substring(pathname.lastIndexOf('.') + 1);
+
+  // webp
+  breakpoints.forEach((br) => {
+    const source = document.createElement('source');
+    if (br.media) source.setAttribute('media', br.media);
+    source.setAttribute('type', 'image/webp');
+    source.setAttribute('srcset', `${pathname}?width=${br.width}&format=webply&optimize=medium`);
+    picture.appendChild(source);
+  });
+
+  // fallback
+  breakpoints.forEach((br, i) => {
+    if (i < breakpoints.length - 1) {
+      const source = document.createElement('source');
+      if (br.media) source.setAttribute('media', br.media);
+      source.setAttribute('srcset', `${pathname}?width=${br.width}&format=${ext}&optimize=medium`);
+      picture.appendChild(source);
+    } else {
+      const img = document.createElement('img');
+      img.setAttribute('loading', eager ? 'eager' : 'lazy');
+      img.setAttribute('alt', alt);
+      picture.appendChild(img);
+      img.setAttribute('src', `${pathname}?width=${br.width}&format=${ext}&optimize=medium`);
+    }
+  });
+
+  return picture;
+}
+
+/**
+ * Set template (page structure) and theme (page styles).
+ */
+function decorateTemplateAndTheme() {
+  const addClasses = (element, classes) => {
+    classes.split(',').forEach((c) => {
+      element.classList.add(toClassName(c.trim()));
+    });
+  };
+  const template = getMetadata('template');
+  if (template) addClasses(document.body, template);
+  const theme = getMetadata('theme');
+  if (theme) addClasses(document.body, theme);
+}
+
+/**
+ * Wrap inline text content of block cells within a <p> tag.
+ * @param {Element} block the block element
+ */
+function wrapTextNodes(block) {
+  const validWrappers = [
+    'P',
+    'PRE',
+    'UL',
+    'OL',
+    'PICTURE',
+    'TABLE',
+    'H1',
+    'H2',
+    'H3',
+    'H4',
+    'H5',
+    'H6',
+  ];
+
+  const wrap = (el) => {
+    const wrapper = document.createElement('p');
+    wrapper.append(...el.childNodes);
+    el.append(wrapper);
+  };
+
+  block.querySelectorAll(':scope > div > div').forEach((blockColumn) => {
+    if (blockColumn.hasChildNodes()) {
+      const hasWrapper = !!blockColumn.firstElementChild
+        && validWrappers.some((tagName) => blockColumn.firstElementChild.tagName === tagName);
+      if (!hasWrapper) {
+        wrap(blockColumn);
+      } else if (
+        blockColumn.firstElementChild.tagName === 'PICTURE'
+        && (blockColumn.children.length > 1 || !!blockColumn.textContent.trim())
+      ) {
+        wrap(blockColumn);
+      }
+    }
+  });
+}
+
+/**
+ * Decorates paragraphs containing a single link as buttons.
+ * @param {Element} element container element
+ */
+function decorateButtons(element) {
+  element.querySelectorAll('a').forEach((a) => {
+    a.title = a.title || a.textContent;
+    if (a.href !== a.textContent) {
+      const up = a.parentElement;
+      const twoup = a.parentElement.parentElement;
+      if (!a.querySelector('img')) {
+        if (up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV')) {
+          a.className = 'button'; // default
+          up.classList.add('button-container');
+        }
+        if (
+          up.childNodes.length === 1
+          && up.tagName === 'STRONG'
+          && twoup.childNodes.length === 1
+          && twoup.tagName === 'P'
+        ) {
+          a.className = 'button primary';
+          twoup.classList.add('button-container');
+        }
+        if (
+          up.childNodes.length === 1
+          && up.tagName === 'EM'
+          && twoup.childNodes.length === 1
+          && twoup.tagName === 'P'
+        ) {
+          a.className = 'button secondary';
+          twoup.classList.add('button-container');
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Add <img> for icon, prefixed with codeBasePath and optional prefix.
+ * @param {Element} [span] span element with icon classes
+ * @param {string} [prefix] prefix to be added to icon src
+ * @param {string} [alt] alt text to be added to icon
+ */
+function decorateIcon(span, prefix = '', alt = '') {
+  const iconName = Array.from(span.classList)
+    .find((c) => c.startsWith('icon-'))
+    .substring(5);
+  const img = document.createElement('img');
+  img.dataset.iconName = iconName;
+  img.src = `${window.hlx.codeBasePath}${prefix}/icons/${iconName}.svg`;
+  img.alt = alt;
+  img.loading = 'lazy';
+  span.append(img);
+}
+
+/**
+ * Add <img> for icons, prefixed with codeBasePath and optional prefix.
+ * @param {Element} [element] Element containing icons
+ * @param {string} [prefix] prefix to be added to icon the src
+ */
+function decorateIcons(element, prefix = '') {
+  const icons = [...element.querySelectorAll('span.icon')];
+  icons.forEach((span) => {
+    decorateIcon(span, prefix);
+  });
+}
+
+/**
+ * Decorates all sections in a container element.
+ * @param {Element} main The container element
+ */
+function decorateSections(main) {
+  main.querySelectorAll(':scope > div').forEach((section) => {
+    const wrappers = [];
+    let defaultContent = false;
+    [...section.children].forEach((e) => {
+      if (e.tagName === 'DIV' || !defaultContent) {
+        const wrapper = document.createElement('div');
+        wrappers.push(wrapper);
+        defaultContent = e.tagName !== 'DIV';
+        if (defaultContent) wrapper.classList.add('default-content-wrapper');
+      }
+      wrappers[wrappers.length - 1].append(e);
+    });
+    wrappers.forEach((wrapper) => section.append(wrapper));
+    section.classList.add('section');
+    section.dataset.sectionStatus = 'initialized';
+    section.style.display = 'none';
+
+    // Process section metadata
+    const sectionMeta = section.querySelector('div.section-metadata');
+    if (sectionMeta) {
+      const meta = readBlockConfig(sectionMeta);
+      Object.keys(meta).forEach((key) => {
+        if (key === 'style') {
+          const styles = meta.style
+            .split(',')
+            .filter((style) => style)
+            .map((style) => toClassName(style.trim()));
+          styles.forEach((style) => section.classList.add(style));
+        } else {
+          section.dataset[toCamelCase(key)] = meta[key];
+        }
+      });
+      sectionMeta.parentNode.remove();
+    }
+  });
+}
+
+/**
+ * Gets placeholders object.
+ * @param {string} [prefix] Location of placeholders
+ * @returns {object} Window placeholders object
+ */
+// eslint-disable-next-line import/prefer-default-export
+async function fetchPlaceholders(prefix = 'default') {
+  window.placeholders = window.placeholders || {};
+  if (!window.placeholders[prefix]) {
+    window.placeholders[prefix] = new Promise((resolve) => {
+      fetch(`${prefix === 'default' ? '' : prefix}/placeholders.json`)
+        .then((resp) => {
+          if (resp.ok) {
+            return resp.json();
+          }
+          return {};
+        })
+        .then((json) => {
+          const placeholders = {};
+          json.data
+            .filter((placeholder) => placeholder.Key)
+            .forEach((placeholder) => {
+              placeholders[toCamelCase(placeholder.Key)] = placeholder.Text;
+            });
+          window.placeholders[prefix] = placeholders;
+          resolve(window.placeholders[prefix]);
+        })
+        .catch(() => {
+          // error loading placeholders
+          window.placeholders[prefix] = {};
+          resolve(window.placeholders[prefix]);
+        });
+    });
+  }
+  return window.placeholders[`${prefix}`];
+}
+
+/**
+ * Builds a block DOM Element from a two dimensional array, string, or object
+ * @param {string} blockName name of the block
+ * @param {*} content two dimensional array or string or object of content
+ */
+function buildBlock(blockName, content) {
+  const table = Array.isArray(content) ? content : [[content]];
+  const blockEl = document.createElement('div');
+  // build image block nested div structure
+  blockEl.classList.add(blockName);
+  table.forEach((row) => {
+    const rowEl = document.createElement('div');
+    row.forEach((col) => {
+      const colEl = document.createElement('div');
+      const vals = col.elems ? col.elems : [col];
+      vals.forEach((val) => {
+        if (val) {
+          if (typeof val === 'string') {
+            colEl.innerHTML += val;
+          } else {
+            colEl.appendChild(val);
+          }
+        }
+      });
+      rowEl.appendChild(colEl);
+    });
+    blockEl.appendChild(rowEl);
+  });
+  return blockEl;
+}
+
+/**
+ * Loads JS and CSS for a block.
+ * @param {Element} block The block element
+ */
+async function loadBlock(block) {
+  const status = block.dataset.blockStatus;
+  if (status !== 'loading' && status !== 'loaded') {
+    block.dataset.blockStatus = 'loading';
+    const { blockName } = block.dataset;
+    try {
+      const cssLoaded = loadCSS(`${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.css`);
+      const decorationComplete = new Promise((resolve) => {
+        (async () => {
+          try {
+            const mod = await import(
+              `${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.js`
+            );
+            if (mod.default) {
+              await mod.default(block);
+            }
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(`failed to load module for ${blockName}`, error);
+          }
+          resolve();
+        })();
+      });
+      await Promise.all([cssLoaded, decorationComplete]);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(`failed to load block ${blockName}`, error);
+    }
+    block.dataset.blockStatus = 'loaded';
+  }
+  return block;
+}
+
+/**
+ * Decorates a block.
+ * @param {Element} block The block element
+ */
+function decorateBlock(block) {
+  const shortBlockName = block.classList[0];
+  if (shortBlockName) {
+    block.classList.add('block');
+    block.dataset.blockName = shortBlockName;
+    block.dataset.blockStatus = 'initialized';
+    wrapTextNodes(block);
+    const blockWrapper = block.parentElement;
+    blockWrapper.classList.add(`${shortBlockName}-wrapper`);
+    const section = block.closest('.section');
+    if (section) section.classList.add(`${shortBlockName}-container`);
+  }
+}
+
+/**
+ * Decorates all blocks in a container element.
+ * @param {Element} main The container element
+ */
+function decorateBlocks(main) {
+  main.querySelectorAll('div.section > div > div').forEach(decorateBlock);
+}
+
+/**
+ * Loads a block named 'header' into header
+ * @param {Element} header header element
+ * @returns {Promise}
+ */
+async function loadHeader(header) {
+  const headerBlock = buildBlock('header', '');
+  header.append(headerBlock);
+  decorateBlock(headerBlock);
+  return loadBlock(headerBlock);
+}
+
+/**
+ * Loads a block named 'footer' into footer
+ * @param footer footer element
+ * @returns {Promise}
+ */
+async function loadFooter(footer) {
+  const footerBlock = buildBlock('footer', '');
+  footer.append(footerBlock);
+  decorateBlock(footerBlock);
+  return loadBlock(footerBlock);
+}
+
+/**
+ * Wait for Image.
+ * @param {Element} section section element
+ */
+async function waitForFirstImage(section) {
+  const lcpCandidate = section.querySelector('img');
+  await new Promise((resolve) => {
+    if (lcpCandidate && !lcpCandidate.complete) {
+      lcpCandidate.setAttribute('loading', 'eager');
+      lcpCandidate.addEventListener('load', resolve);
+      lcpCandidate.addEventListener('error', resolve);
+    } else {
+      resolve();
+    }
+  });
+}
+
+/**
+ * Loads all blocks in a section.
+ * @param {Element} section The section element
+ */
+
+async function loadSection(section, loadCallback) {
+  const status = section.dataset.sectionStatus;
+  if (!status || status === 'initialized') {
+    section.dataset.sectionStatus = 'loading';
+    const blocks = [...section.querySelectorAll('div.block')];
+    for (let i = 0; i < blocks.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await loadBlock(blocks[i]);
+    }
+    if (loadCallback) await loadCallback(section);
+    section.dataset.sectionStatus = 'loaded';
+    section.style.display = null;
+  }
+}
+
+/**
+ * Loads all sections.
+ * @param {Element} element The parent element of sections to load
+ */
+
+async function loadSections(element) {
+  const sections = [...element.querySelectorAll('div.section')];
+  for (let i = 0; i < sections.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await loadSection(sections[i]);
+    if (i === 0 && sampleRUM.enhance) {
+      sampleRUM.enhance();
+    }
+  }
+}
+
+init();
+
+export {
+  buildBlock,
+  createOptimizedPicture,
+  decorateBlock,
+  decorateBlocks,
+  decorateButtons,
+  decorateIcons,
+  decorateSections,
+  decorateTemplateAndTheme,
+  fetchPlaceholders,
+  getMetadata,
+  loadBlock,
+  loadCSS,
+  loadFooter,
+  loadHeader,
+  loadScript,
+  loadSection,
+  loadSections,
+  readBlockConfig,
+  sampleRUM,
+  setup,
+  toCamelCase,
+  toClassName,
+  waitForFirstImage,
+  wrapTextNodes,
+};
+
+
+================================================
+File: scripts/delayed.js
+================================================
+// add delayed functionality here
+
+
+================================================
+File: scripts/scripts.js
+================================================
+import {
+  buildBlock,
+  loadHeader,
+  loadFooter,
+  decorateButtons,
+  decorateIcons,
+  decorateSections,
+  decorateBlocks,
+  decorateTemplateAndTheme,
+  getMetadata,
+  waitForFirstImage,
+  loadSection,
+  loadSections,
+  loadCSS,
+} from './aem.js';
+
+/**
+ * Builds hero block and prepends to main in a new section.
+ * @param {Element} main The container element
+ */
+function buildHeroBlock(main) {
+  const h1 = main.querySelector('h1');
+  const picture = main.querySelector('picture');
+  // eslint-disable-next-line no-bitwise
+  if (h1 && picture && (h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING)) {
+    const section = document.createElement('div');
+    section.append(buildBlock('hero', { elems: [picture, h1] }));
+    main.prepend(section);
+  }
+}
+
+/**
+ * load fonts.css and set a session storage flag
+ */
+async function loadFonts() {
+  await loadCSS(`${window.hlx.codeBasePath}/styles/fonts.css`);
+  try {
+    if (!window.location.hostname.includes('localhost')) sessionStorage.setItem('fonts-loaded', 'true');
+  } catch (e) {
+    // do nothing
+  }
+}
+
+function autolinkModals(doc) {
+  doc.addEventListener('click', async (e) => {
+    const origin = e.target.closest('a');
+    if (origin && origin.href && origin.href.includes('/modals/')) {
+      e.preventDefault();
+      const { openModal } = await import(`${window.hlx.codeBasePath}/blocks/modal/modal.js`);
+      openModal(origin.href);
+    }
+  });
+}
+
+/**
+ * Builds all synthetic blocks in a container element.
+ * @param {Element} main The container element
+ */
+function buildAutoBlocks(main) {
+  try {
+    buildHeroBlock(main);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Auto Blocking failed', error);
+  }
+}
+
+/**
+ * Decorates the main element.
+ * @param {Element} main The main element
+ */
+// eslint-disable-next-line import/prefer-default-export
+export function decorateMain(main) {
+  // hopefully forward compatible button decoration
+  decorateButtons(main);
+  decorateIcons(main);
+  buildAutoBlocks(main);
+  decorateSections(main);
+  decorateBlocks(main);
+}
+
+/**
+ * Loads everything needed to get to LCP.
+ * @param {Element} doc The container element
+ */
+async function loadEager(doc) {
+  doc.documentElement.lang = 'en';
+  decorateTemplateAndTheme();
+  if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
+    doc.body.dataset.breadcrumbs = true;
+  }
+  const main = doc.querySelector('main');
+  if (main) {
+    decorateMain(main);
+    doc.body.classList.add('appear');
+    await loadSection(main.querySelector('.section'), waitForFirstImage);
+  }
+
+  try {
+    /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
+    if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
+      loadFonts();
+    }
+  } catch (e) {
+    // do nothing
+  }
+}
+
+/**
+ * Loads everything that doesn't need to be delayed.
+ * @param {Element} doc The container element
+ */
+async function loadLazy(doc) {
+  autolinkModals(doc);
+
+  const main = doc.querySelector('main');
+  await loadSections(main);
+
+  const { hash } = window.location;
+  const element = hash ? doc.getElementById(hash.substring(1)) : false;
+  if (hash && element) element.scrollIntoView();
+
+  loadHeader(doc.querySelector('header'));
+  loadFooter(doc.querySelector('footer'));
+
+  loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
+  loadFonts();
+}
+
+/**
+ * Loads everything that happens a lot later,
+ * without impacting the user experience.
+ */
+function loadDelayed() {
+  // eslint-disable-next-line import/no-cycle
+  window.setTimeout(() => import('./delayed.js'), 3000);
+  // load anything that can be postponed to the latest here
+}
+
+async function loadPage() {
+  await loadEager(document);
+  await loadLazy(document);
+  loadDelayed();
+}
+
+loadPage();
+
+
+================================================
+File: styles/fonts.css
+================================================
+/* stylelint-disable max-line-length */
+@font-face {
+  font-family: roboto-condensed;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/roboto-condensed-bold.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: roboto;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/roboto-bold.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/roboto-medium.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/roboto-regular.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+
+================================================
+File: styles/lazy-styles.css
+================================================
+/* add global styles that can be loaded post LCP here */
+
+
+================================================
+File: styles/styles.css
+================================================
+/*
+ * Copyright 2020 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
+:root {
+  /* colors */
+  --background-color: white;
+  --light-color: #f8f8f8;
+  --dark-color: #505050;
+  --text-color: #131313;
+  --link-color: #3b63fb;
+  --link-hover-color: #1d3ecf;
+
+  /* fonts */
+  --body-font-family: roboto, roboto-fallback, sans-serif;
+  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif;
+
+  /* body sizes */
+  --body-font-size-m: 22px;
+  --body-font-size-s: 19px;
+  --body-font-size-xs: 17px;
+
+  /* heading sizes */
+  --heading-font-size-xxl: 55px;
+  --heading-font-size-xl: 44px;
+  --heading-font-size-l: 34px;
+  --heading-font-size-m: 27px;
+  --heading-font-size-s: 24px;
+  --heading-font-size-xs: 22px;
+
+  /* nav heights */
+  --nav-height: 64px;
+  --breadcrumbs-height: 34px;
+  --header-height: var(--nav-height);
+}
+
+/* fallback fonts */
+@font-face {
+  font-family: roboto-condensed-fallback;
+  size-adjust: 88.82%;
+  src: local('Arial');
+}
+
+@font-face {
+  font-family: roboto-fallback;
+  size-adjust: 99.529%;
+  src: local('Arial');
+}
+
+@media (width >= 900px) {
+  :root {
+    /* body sizes */
+    --body-font-size-m: 18px;
+    --body-font-size-s: 16px;
+    --body-font-size-xs: 14px;
+
+    /* heading sizes */
+    --heading-font-size-xxl: 45px;
+    --heading-font-size-xl: 36px;
+    --heading-font-size-l: 28px;
+    --heading-font-size-m: 22px;
+    --heading-font-size-s: 20px;
+    --heading-font-size-xs: 18px;
+  }
+}
+
+body {
+  display: none;
+  margin: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-m);
+  line-height: 1.6;
+}
+
+body.appear {
+  display: block;
+}
+
+header {
+  height: var(--header-height);
+}
+
+header .header,
+footer .footer {
+  visibility: hidden;
+}
+
+header .header[data-block-status="loaded"],
+footer .footer[data-block-status="loaded"] {
+  visibility: visible;
+}
+
+@media (width >= 900px) {
+  body[data-breadcrumbs] {
+    --header-height: calc(var(--nav-height) + var(--breadcrumbs-height));
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0.8em;
+  margin-bottom: 0.25em;
+  font-family: var(--heading-font-family);
+  font-weight: 600;
+  line-height: 1.25;
+  scroll-margin: 40px;
+}
+
+h1 { font-size: var(--heading-font-size-xxl); }
+h2 { font-size: var(--heading-font-size-xl); }
+h3 { font-size: var(--heading-font-size-l); }
+h4 { font-size: var(--heading-font-size-m); }
+h5 { font-size: var(--heading-font-size-s); }
+h6 { font-size: var(--heading-font-size-xs); }
+
+p,
+dl,
+ol,
+ul,
+pre,
+blockquote {
+  margin-top: 0.8em;
+  margin-bottom: 0.25em;
+}
+
+code,
+pre {
+  font-size: var(--body-font-size-s);
+}
+
+pre {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--light-color);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+main > div {
+  margin: 40px 16px;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+/* links */
+a:any-link {
+  color: var(--link-color);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+/* buttons */
+a.button:any-link,
+button {
+  box-sizing: border-box;
+  display: inline-block;
+  max-width: 100%;
+  margin: 12px 0;
+  border: 2px solid transparent;
+  border-radius: 2.4em;
+  padding: 0.5em 1.2em;
+  font-family: var(--body-font-family);
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  background-color: var(--link-color);
+  color: var(--background-color);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a.button:hover,
+a.button:focus,
+button:hover,
+button:focus {
+  background-color: var(--link-hover-color);
+  cursor: pointer;
+}
+
+button:disabled,
+button:disabled:hover {
+  background-color: var(--light-color);
+  cursor: unset;
+}
+
+a.button.secondary,
+button.secondary {
+  background-color: unset;
+  border: 2px solid currentcolor;
+  color: var(--text-color);
+}
+
+main img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+.icon {
+  display: inline-block;
+  height: 24px;
+  width: 24px;
+}
+
+.icon img {
+  height: 100%;
+  width: 100%;
+}
+
+/* sections */
+main > .section {
+  margin: 40px 0;
+}
+
+main > .section > div {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 24px;
+}
+
+main > .section:first-of-type {
+  margin-top: 0;
+}
+
+@media (width >= 900px) {
+  main > .section > div {
+    padding: 0 32px;
+  }
+}
+
+/* section metadata */
+main .section.light,
+main .section.highlight {
+  background-color: var(--light-color);
+  margin: 0;
+  padding: 40px 0;
+}
+
+
